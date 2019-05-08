@@ -5,6 +5,10 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp();
 
+admin.database().ref('/authors').once('value').then(function(snapshot) {
+    console.log(snapshot.val());
+});
+
 function analyseJson(json) {
 
 }
