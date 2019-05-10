@@ -16,8 +16,9 @@ function getAnyReminders() {
   const date = new Date();
   var currentTime = date.getTime()
   for (var authorId in submissionData["authors"]) {
-    var lastSubTime = mostRecentSubTime(authorId, currentTime)
-    if (lastSubTime - currentTime > TimeUnit.DAYS.toMillis(4)) {
+    // var lastSubTime = mostRecentSubTime(authorId, currentTime)
+    var lastSubTime = date.getTime();
+    if (lastSubTime - currentTime > 4*86400000 ) {
       slackers.concat([authorId])
     }
   }
