@@ -2,6 +2,8 @@ import React from 'react';
 import './App.css';
 import _ from 'lodash';
 
+const numDays = 4;
+
 function fetchJson() {
   // fetch data from local file
   // TODO: In the future, the data would be fetched from Prof.Riesbeck's server
@@ -17,10 +19,9 @@ function getAnyReminders() {
   let authorId;
   for (authorId in submissionData.authors) {
     const lastSubTime = mostRecentSubTime(submissionData.authors[authorId]);
-    console.log(lastSubTime)
-    console.log(currentTime - 345600000)
-    if (lastSubTime < currentTime - 345600000) {
-      slackers.push(authorId);
+    const timeDiff = currentTime - lastSubTime;
+    if (timeDiff > numDays * 86400000) {
+      slackers.push([authorId, timeDiff]);
     }
   }
   console.log("slackers: " + slackers);
@@ -32,10 +33,24 @@ const mostRecentSubTime = (author) => {
   return _.max(_.values(_.mapValues(author.submissions, (o => o.submitted))));
 }
 
+const populateListofSlackers = () => {
+  const slackers = getAnyReminders();
+  return _.map(slackers, (slacker, index) => {
+    return (
+      <div key={index}>
+        An email should be sent to student {slacker[0]} because they have not submitted anything
+        for {Math.floor(slacker[1] / 86400000)} days.
+        <br/>
+        <br/>
+      </div>
+    )
+  });
+}
+
 function App() {
   return (
     <div className="App">
-      {getAnyReminders()}
+      {populateListofSlackers()}
     </div>
   );
 }
