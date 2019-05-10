@@ -18,6 +18,7 @@ function getAnyReminders() {
   const currentTime = Date.now();
   let authorId;
   for (authorId in submissionData.authors) {
+    // var lastSubTime = mostRecentSubTime(authorId, currentTime)
     const lastSubTime = mostRecentSubTime(submissionData.authors[authorId]);
     const timeDiff = currentTime - lastSubTime;
     if (timeDiff > numDays * 86400000) {
