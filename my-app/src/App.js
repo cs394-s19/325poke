@@ -11,14 +11,12 @@ function fetchJson() {
   return json;
 }
 
-function getAnyReminders() {
+function getAnyReminders(currentTime) {
   // return an array with author ids
   const submissionData = fetchJson();
   const slackers = [];
-  const currentTime = Date.now();
   let authorId;
   for (authorId in submissionData.authors) {
-    // var lastSubTime = mostRecentSubTime(authorId, currentTime)
     const lastSubTime = mostRecentSubTime(submissionData.authors[authorId]);
     const timeDiff = currentTime - lastSubTime;
     if (timeDiff > numDays * 86400000) {
@@ -30,12 +28,11 @@ function getAnyReminders() {
 }
 
 const mostRecentSubTime = (author) => {
-  console.log(author);
   return _.max(_.values(_.mapValues(author.submissions, (o => o.submitted))));
 }
 
-const populateListofSlackers = () => {
-  const slackers = getAnyReminders();
+const populateListofSlackers = (currentTime) => {
+  const slackers = getAnyReminders(currentTime);
   return _.map(slackers, (slacker, index) => {
     return (
       <div key={index}>
@@ -49,9 +46,16 @@ const populateListofSlackers = () => {
 }
 
 function App() {
+  // class start date = Thursday, September 27th
+  // first email date = Friday, September 28th, 8am
+  const date1 = new Date('September 28, 2018 08:00:00')
+
+  // make list of every friday from date1 to end of quarter
+  const times = [date1];
+
   return (
     <div className="App">
-      {populateListofSlackers()}
+      {populateListofSlackers(times[0])}
     </div>
   );
 }
