@@ -4413,10 +4413,10 @@
       }
     },
     "1769" : {
-      "submissions" : [ null, {
+      "submissions" : {
         "status" : "Almost done",
         "submitted" : 1538710374995
-      } ]
+      }
     },
     "1770" : {
       "submissions" : {
@@ -5051,10 +5051,10 @@
       }
     },
     "1779" : {
-      "submissions" : [ null, {
+      "submissions" : {
         "status" : "Not done",
         "submitted" : 1540978240687
-      } ]
+      }
     },
     "1780" : {
       "submissions" : {

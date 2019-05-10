@@ -1,6 +1,6 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import _ from 'lodash';
 
 function fetchJson() {
   // fetch data from local file
@@ -11,39 +11,31 @@ function fetchJson() {
 
 function getAnyReminders() {
   // return an array with author ids
-  const submissionData = fetchJson()
-  const slackers = []
-  const date = new Date();
-  var currentTime = date.getTime()
-  for (var authorId in submissionData["authors"]) {
-    var lastSubTime = mostRecentSubTime(authorId, currentTime)
-    if (lastSubTime - currentTime > TimeUnit.DAYS.toMillis(4)) {
-      slackers.concat([authorId])
+  const submissionData = fetchJson();
+  const slackers = [];
+  const currentTime = Date.now();
+  let authorId;
+  for (authorId in submissionData.authors) {
+    const lastSubTime = mostRecentSubTime(submissionData.authors[authorId]);
+    console.log(lastSubTime)
+    console.log(currentTime - 345600000)
+    if (lastSubTime < currentTime - 345600000) {
+      slackers.push(authorId);
     }
   }
-  console.log("slackers: " + slackers)
+  console.log("slackers: " + slackers);
   return slackers;
 }
 
-getAnyReminders()
+const mostRecentSubTime = (author) => {
+  console.log(author);
+  return _.max(_.values(_.mapValues(author.submissions, (o => o.submitted))));
+}
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {getAnyReminders()}
     </div>
   );
 }
