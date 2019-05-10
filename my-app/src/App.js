@@ -1,6 +1,8 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import _ from 'lodash';
+
+const numDays = 4;
 
 function fetchJson() {
   // fetch data from local file
@@ -11,40 +13,45 @@ function fetchJson() {
 
 function getAnyReminders() {
   // return an array with author ids
-  const submissionData = fetchJson()
-  const slackers = []
-  const date = new Date();
-  var currentTime = date.getTime()
-  for (var authorId in submissionData["authors"]) {
+  const submissionData = fetchJson();
+  const slackers = [];
+  const currentTime = Date.now();
+  let authorId;
+  for (authorId in submissionData.authors) {
     // var lastSubTime = mostRecentSubTime(authorId, currentTime)
-    var lastSubTime = date.getTime()-1000000;
-    if (lastSubTime - currentTime > 4*86400000 ) {
-      slackers.concat([authorId])
+    const lastSubTime = mostRecentSubTime(submissionData.authors[authorId]);
+    const timeDiff = currentTime - lastSubTime;
+    if (timeDiff > numDays * 86400000) {
+      slackers.push([authorId, timeDiff]);
     }
   }
-  console.log("slackers: " + slackers)
+  console.log("slackers: " + slackers);
   return slackers;
 }
 
-getAnyReminders()
+const mostRecentSubTime = (author) => {
+  console.log(author);
+  return _.max(_.values(_.mapValues(author.submissions, (o => o.submitted))));
+}
+
+const populateListofSlackers = () => {
+  const slackers = getAnyReminders();
+  return _.map(slackers, (slacker, index) => {
+    return (
+      <div key={index}>
+        An email should be sent to student {slacker[0]} because they have not submitted anything
+        for {Math.floor(slacker[1] / 86400000)} days.
+        <br/>
+        <br/>
+      </div>
+    )
+  });
+}
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {populateListofSlackers()}
     </div>
   );
 }
