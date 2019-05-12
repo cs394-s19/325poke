@@ -48,14 +48,25 @@ const populateListofSlackers = (currentTime) => {
 function App() {
   // class start date = Thursday, September 27th
   // first email date = Friday, September 28th, 8am
-  const date1 = new Date('December 28, 2018 08:00:00').getTime()
+  const date1 = new Date('September 28, 2018 08:00:00').getTime()
+  const date2 = new Date('October 5, 2018 08:00:00').getTime()
+  const date3 = new Date('October 12, 2018 08:00:00').getTime()
+  const date4 = new Date('October 19, 2018 08:00:00').getTime()
+  const date5 = new Date('October 26, 2018 08:00:00').getTime()
+  const date6 = new Date('November 2, 2018 08:00:00').getTime()
+  const date7 = new Date('November 9, 2018 08:00:00').getTime()
+  const date8 = new Date('November 16, 2018 08:00:00').getTime()
+  const date9 = new Date('November 23, 2018 08:00:00').getTime()
+  const date10 = new Date('November 30, 2018 08:00:00').getTime()
+  const date11 = new Date('December 7, 2018 08:00:00').getTime()
+  const date12 = new Date('December 14, 2018 08:00:00').getTime()
 
   // make list of every friday from date1 to end of quarter
-  const times = [date1];
+  const times = [date1, date2, date3, date4, date5, date6, date7, date8, date9, date10, date11, date12];
 
   return (
     <div className="App">
-      {populateListofSlackers(times[0])}
+      {populateListofSlackers(times[10])}
     </div>
   );
 }
