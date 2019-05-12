@@ -1,6 +1,8 @@
 import React from 'react';
 import './App.css';
 import _ from 'lodash';
+import { Button } from '@material-ui/core';
+import { Link } from 'react-router-dom';
 
 const numDays = 4;
 
@@ -36,8 +38,12 @@ const populateListofSlackers = (currentTime) => {
   return _.map(slackers, (slacker, index) => {
     return (
       <div key={index}>
-        An email should be sent to student {slacker[0]} because they have not submitted anything
-        for {Math.floor(slacker[1] / 86400000)} days.
+        A reminder should be sent to student <b><i>{slacker[0]}</i></b>, because nothing has been submitted anything
+        for {Math.floor(slacker[1] / 86400000)} days.&nbsp;&nbsp;&nbsp;
+        <Button id="show" 
+            label="Show Details" variant="contained" color="tertiary">
+        Show Details
+        </Button>
         <br/>
         <br/>
       </div>
@@ -66,6 +72,9 @@ function App() {
 
   return (
     <div className="App">
+      <h1>
+        The 4-day reminder should be send to:
+      </h1>
       {populateListofSlackers(times[10])}
     </div>
   );
