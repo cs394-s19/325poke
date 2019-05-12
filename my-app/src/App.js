@@ -48,7 +48,7 @@ const populateListofSlackers = (currentTime) => {
 function App() {
   // class start date = Thursday, September 27th
   // first email date = Friday, September 28th, 8am
-  const date1 = new Date('September 28, 2018 08:00:00')
+  const date1 = new Date('December 28, 2018 08:00:00').getTime()
 
   // make list of every friday from date1 to end of quarter
   const times = [date1];
