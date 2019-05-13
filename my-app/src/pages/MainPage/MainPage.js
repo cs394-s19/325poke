@@ -34,13 +34,11 @@ function fetchJson() {
 // given a base date, returns an array of author ids to which we need to send reminders
 function getAnyReminders(currentTime) {
   // return an array with author ids
-  console.log("currentTime: " + currentTime)
   const submissionData = fetchJson();
   const slackers = [];
   let authorId;
   for (authorId in submissionData.authors) {
     const lastSubTime = mostRecentSubTime(submissionData.authors[authorId], currentTime);
-    console.log("last sub time: " + authorId, lastSubTime)
     const timeDiff = currentTime - lastSubTime;
     if (timeDiff > numDays * 86400000) {
       slackers.push([authorId, timeDiff]);
