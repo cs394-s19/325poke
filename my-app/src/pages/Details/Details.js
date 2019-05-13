@@ -36,24 +36,31 @@ export class Details extends Component {
       return _.map(this.state.exercises, (exercise, index) => {
         const hist = _.filter(exercise.submit_hist, (entry) => entry.submitted < this.state.currentTime);
         console.log(hist);
-        if (!_.isEmpty(hist)) {
-          return (
-            <div className="details" key={index}>
-              <h1>Exercise {index}</h1>
-              {this.populateListofSubmissions(hist)}
-            </div>
-          );
+        if (_.isEmpty(hist)) {
+          // to identify when we have no submissions
+          return null;
         }
+        return (
+          <div className="details" key={index}>
+            <h1>Exercise {index}</h1>
+            {this.populateListofSubmissions(hist)}
+          </div>
+        );
       });
     }
 
     render() {
+      // to avoid trying to display null
+      let pastSubs = _.filter(this.populateSubHistory(), (e) => e != null);
+      if (_.isEmpty(pastSubs)) {
+        pastSubs = <p className="details">This student has not submitted anything yet.</p>;
+      }
       return(
         <div>
           <h1 className="details">Report for student {this.state.student}</h1>
           <br/>
-          {this.populateSubHistory()}
+          {pastSubs}
         </div>
-      )
+      );
     }
 }
