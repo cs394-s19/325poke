@@ -7,7 +7,8 @@ export class Details extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            exercises: this.props.location.exercises
+            exercises: this.props.location.exercises, 
+            student: this.props.location.student
         };
         console.log(this.props.location.exercises)
     };
@@ -18,17 +19,25 @@ export class Details extends Component {
         return time;
     }
 
+    populateSubHistory = () => {
+      return _.map(this.state.exercises, (exercise, index) => {
+        return (
+          <div className="details" key={index}>
+            <h1>Exercise {index}</h1> 
+            Status: <b>{exercise.status}</b> Last Submitted Time:<b>{this.toTime(exercise.submitted)}</b>
+            <br/>
+            <br/>
+          </div>
+        )
+      });
+    }
     render() {
-        return _.map(this.state.exercises, (exercise, index) => {
-            return (
-              <div className="details" key={index}>
-                <h1>Exercise {index}</h1> 
-                Status: <b>{exercise.status}</b> Last Submitted Time:<b>{this.toTime(exercise.submitted)}</b>
-                <br/>
-                <br/>
-              </div>
-            )
-          });
+      return(
+        <div>
+          <h1 className="details">Report for student {this.state.student}</h1>
+          {this.populateSubHistory()}
+        </div>
+      )
     }
 }
 
