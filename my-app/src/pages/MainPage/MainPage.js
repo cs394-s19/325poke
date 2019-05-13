@@ -84,8 +84,9 @@ const populateListofSlackers = (currentTime) => {
 
 const populateWeeklyList = () => {
   return _.map(times, (weeklyDeadline, index) => {
+    console.log(weeklyDeadline);
     const newDate = new Date(weeklyDeadline)
-    const month = newDate.getMonth()
+    const month = newDate.getMonth() + 1
     const date = newDate.getDate()
     const year = newDate.getFullYear()
     return(

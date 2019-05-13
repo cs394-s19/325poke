@@ -24,7 +24,7 @@ export class Details extends Component {
       return _.reverse(_.map(hist, (sub, index) => {
         return (
           <div className="details" key={index}>
-            Status: <b>{sub.status}</b> Last Submitted Time:<b>{this.toTime(sub.submitted)}</b>
+            Status: <b>{sub.status}</b> Submitted On: <b>{this.toTime(sub.submitted)}</b>
             <br/>
             <br/>
           </div>
