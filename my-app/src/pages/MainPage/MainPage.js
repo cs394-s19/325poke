@@ -83,9 +83,13 @@ const populateListofSlackers = (currentTime) => {
 
 const populateWeeklyList = () => {
   return _.map(times, (weeklyDeadline, index) => {
+    const newDate = new Date(weeklyDeadline)
+    const month = newDate.getMonth()
+    const date = newDate.getDate()
+    const year = newDate.getFullYear()
     return(
       <div>
-        <h2>Week {index+1}</h2>
+        <h2>Week {index+1}: ending Friday, {month}/{date}/{year}</h2>
         {populateListofSlackers(times[index])}
       </div>
     )
