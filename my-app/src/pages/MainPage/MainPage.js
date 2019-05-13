@@ -7,6 +7,7 @@ import './styles.css';
 const numDays = 4;
 
 // class start date = Thursday, September 27th
+const startDate = new Date('September 27, 2018 08:00:00').getTime()
 // first email date = Friday, September 28th, 8am
 const date1 = new Date('September 28, 2018 08:00:00').getTime()
 const date2 = new Date('October 5, 2018 08:00:00').getTime()
@@ -53,14 +54,14 @@ function getAnyReminders(currentTime) {
 // ensures we ignore the future submissions since we have that data already
 const forgetFutureSubmissions = (submissionTime, currentTime) => {
   if (submissionTime > currentTime) {
-    return times[0]
+    return startDate; // to calculate number of days without work at beginning of quarter
   }
   else {
-    return submissionTime
+    return submissionTime;
   }
 }
 const mostRecentSubTime = (author, currentTime) => {
-  return _.max(_.values(_.mapValues(author.submissions, (o => forgetFutureSubmissions(o.submitted, currentTime)))));
+  return _.max(_.values(_.mapValues(author.exercises, (o => forgetFutureSubmissions(o.submitted, currentTime)))));
 }
 
 const populateListofSlackers = (currentTime) => {
@@ -70,7 +71,7 @@ const populateListofSlackers = (currentTime) => {
       <div key={index}>
         A reminder should be sent to student <b><i>{slacker[0]}</i></b>, because nothing has been submitted anything
         for {Math.floor(slacker[1] / 86400000)} days.&nbsp;&nbsp;&nbsp;
-        <Button id="show" component={Link} to={{pathname:"details", exercises:fetchJson().authors[slacker[0]].submissions, student:slacker[0]} }
+        <Button id="show" component={Link} to={{pathname:"details", exercises:fetchJson().authors[slacker[0]].exercises, student:slacker[0], currentTime:currentTime} }
             label="Show Details" variant="contained" color="primary" >
         Show Details
         </Button>
