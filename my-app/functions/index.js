@@ -28,6 +28,8 @@ function fetchJson() {
 function updateJson(originjson, json) {
     // fetch formatted json from database
     let formattedJson = originjson;
+    if (formattedJson == null)
+        formattedJson = {};
     if (!formattedJson.hasOwnProperty('authors')) {
         formattedJson['authors'] = {};
     }
@@ -38,29 +40,39 @@ function updateJson(originjson, json) {
         // check if there already have this specific author
         if (!formattedJson['authors'].hasOwnProperty(submitObject['author'])) {
             formattedJson['authors'][submitObject['author']] = {};
-            formattedJson['authors'][submitObject['author']]['submissions'] = {}
+            formattedJson['authors'][submitObject['author']]['exercises'] = {};
+            formattedJson['authors'][submitObject['author']]['submissions'] = [];
+        } else if (!formattedJson['authors'][submitObject['author']].hasOwnProperty('submissions')) {
+            formattedJson['authors'][submitObject['author']]['submissions'] = [];
         }
         // make a new variable to make expression shorter(actually not that much)
-        let currSubmissions = formattedJson['authors'][submitObject['author']]['submissions'];
+        let currSubmissions = formattedJson['authors'][submitObject['author']]['exercises'];
         // check if the specific author have the specific exid
-        if (!currSubmissions.hasOwnProperty(submitObject['exid'])) {
+        let strExid = submitObject['exid'].toString();
+        if (!currSubmissions.hasOwnProperty(strExid)) {
             // initialize the required fields
-            currSubmissions[submitObject['exid']] = {};
-            currSubmissions[submitObject['exid']]["submitted"] = submitObject['submitted'];
-            currSubmissions[submitObject['exid']]["submit_hist"] = [];
-            currSubmissions[submitObject['exid']]["submit_hist"].push(submitObject);
+            currSubmissions[strExid] = {};
+            currSubmissions[strExid]["submitted"] = submitObject['submitted'];
+            currSubmissions[strExid]["submit_hist"] = [];
+            currSubmissions[strExid]["submit_hist"].push(submitObject);
         }
-        if (currSubmissions[submitObject['exid']]["submitted"] < submitObject['submitted'])
-            currSubmissions[submitObject['exid']]["submitted"] = submitObject['submitted'];
+        if (currSubmissions[strExid]["submitted"] < submitObject['submitted'])
+            currSubmissions[strExid]["submitted"] = submitObject['submitted'];
         // check corner case (mainly caused by old data)
-        if (!currSubmissions[submitObject['exid']].hasOwnProperty("submit_hist"))
-            currSubmissions[submitObject['exid']]["submit_hist"] = [];
+        if (!currSubmissions[strExid].hasOwnProperty("submit_hist"))
+            currSubmissions[strExid]["submit_hist"] = [];
         // if the current data is not in the submit history, add it
-        if (!isSubmitInSubmitHist(currSubmissions[submitObject['exid']]["submit_hist"], submitObject)) {
-            currSubmissions[submitObject['exid']]["submit_hist"].push(submitObject);
+        if (!isSubmitInSubmitHist(currSubmissions[strExid]["submit_hist"], submitObject)) {
+            currSubmissions[strExid]["submit_hist"].push(submitObject);
         }
-        formattedJson['authors'][submitObject['author']]['submissions'][submitObject['exid']]["status"] = submitObject['status'];
+        if (!isSubmitInSubmitHist(formattedJson['authors'][submitObject['author']]['submissions'], submitObject)) {
+            formattedJson['authors'][submitObject['author']]['submissions'].push(submitObject);
+        }
+        formattedJson['authors'][submitObject['author']]['exercises'][strExid]["status"] = submitObject['status'];
     });
+
+
+
 
     return formattedJson;
 }

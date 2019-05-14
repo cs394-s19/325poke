@@ -21,6 +21,8 @@ export class Details extends Component {
 
     populateSubHistory = () => {
       return _.map(this.state.exercises, (exercise, index) => {
+          if (index === 'ignoreme')
+              return;
         return (
           <div className="details" key={index}>
             <h1>Exercise {index}</h1> 
