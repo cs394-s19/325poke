@@ -135,12 +135,19 @@ export class MainPage extends Component{
     render() {
         return (
             <div className="Main">
-                <h1>
-                    The 4-day reminders:
-                </h1>
-                {this.state.isLoaded ? this.populateWeeklyList() : null}
-                {/* <h3>Week 11: Starting December 7, 2018</h3>
-      {populateListofSlackers(times[10])} */}
+                <div className="fourday">
+                    <h1>
+                        The 4-day reminders:
+                    </h1>
+                    {this.state.isLoaded ? this.populateWeeklyList() : null}
+                    {/* <h3>Week 11: Starting December 7, 2018</h3>
+        {populateListofSlackers(times[10])} */}
+                </div> 
+                <div className="twoweek">
+                    <h1>
+                        The 2-week reminders:
+                    </h1>
+                </div>
             </div>
         );
     }
