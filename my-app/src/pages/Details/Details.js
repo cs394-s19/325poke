@@ -76,8 +76,6 @@ export class Details extends Component {
       return(
         <div>
           <h1 className="details">Report for {this.state.student_name}</h1>
-          {this.populateSubHistory()}
-
           {pastSubs}
         </div>
       );
