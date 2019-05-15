@@ -8,6 +8,7 @@ import database from '../../firebase'
 const numDays = 4;
 
 // class start date = Thursday, September 27th
+const startDate = new Date('September 27, 2018 08:00:00').getTime()
 // first email date = Friday, September 28th, 8am
 const date1 = new Date('September 28, 2018 08:00:00').getTime()
 const date2 = new Date('October 5, 2018 08:00:00').getTime()
@@ -26,9 +27,7 @@ const date12 = new Date('December 14, 2018 08:00:00').getTime()
 const times = [date1, date2, date3, date4, date5, date6, date7, date8, date9, date10, date11, date12];
 
 
-
-
-export class MainPage extends Component{
+export class MainPage extends Component {
 
     // given a base date, returns an array of author ids to which we need to send reminders
     getAnyReminders(currentTime) {
@@ -54,10 +53,9 @@ export class MainPage extends Component{
     forgetFutureSubmissions = (submissionTime, currentTime) => {
         // console.log(submissionTime);
         if (submissionTime > currentTime) {
-            return times[0]
-        }
-        else {
-            return submissionTime
+            return startDate; // to calculate number of days without work at beginning of quarter
+        } else {
+            return submissionTime;
         }
     }
     mostRecentSubTime = (author, currentTime) => {
@@ -76,7 +74,7 @@ export class MainPage extends Component{
                     />
                     {/* A reminder should be sent to student <b><i>{slacker[2]}</i></b> (<i>{slacker[3]}</i>), because nothing has been submitted anything
                     for {Math.floor(slacker[1] / 86400000)} days.&nbsp;&nbsp;&nbsp; */}
-                    <Button id="show" component={Link} to={{ pathname: "details", exercises: this.state.jsonData.authors[slacker[0]].exercises, student_id: slacker[0], student_name: slacker[2] }}
+                    <Button id="show" component={Link} to={{ pathname: "details", exercises: this.state.jsonData.authors[slacker[0]].exercises, student_id: slacker[0], student_name: slacker[2], currentTime: currentTime }}
                         label="Show Details" variant="contained" color="primary" >
                         Show Details
                     </Button>
@@ -88,8 +86,9 @@ export class MainPage extends Component{
     populateWeeklyList = () => {
         //console.log(this.state.jsonData.authors["1769"].exercises);
         return _.map(times, (weeklyDeadline, index) => {
+            console.log(weeklyDeadline);
             const newDate = new Date(weeklyDeadline)
-            const month = newDate.getMonth()
+            const month = newDate.getMonth() + 1
             const date = newDate.getDate()
             const year = newDate.getFullYear()
             return(
