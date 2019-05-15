@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import _ from 'lodash';
-import { Button } from '@material-ui/core';
+import { Button, List, ListItem, ListItemText, Typography } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import './styles.css';
 import database from '../../firebase'
@@ -41,16 +41,16 @@ export class MainPage extends Component{
             const lastSubTime = this.mostRecentSubTime(submissionData.authors[authorId], currentTime);
             const timeDiff = currentTime - lastSubTime;
             if (timeDiff > numDays * 86400000) {
-                slackers.push([authorId, timeDiff]);
+                slackers.push([authorId, timeDiff, submissionData.authors[authorId].name, submissionData.authors[authorId].email]);
             }
         }
         //console.log("slackers: " + slackers);
         return slackers;
     }
 
-// function to ensure we only look at the previous submissions given a current time
-// kind of like a snapshot of the students' progress at the current time
-// ensures we ignore the future submissions since we have that data already
+    // function to ensure we only look at the previous submissions given a current time
+    // kind of like a snapshot of the students' progress at the current time
+    // ensures we ignore the future submissions since we have that data already
     forgetFutureSubmissions = (submissionTime, currentTime) => {
         // console.log(submissionTime);
         if (submissionTime > currentTime) {
@@ -69,16 +69,18 @@ export class MainPage extends Component{
         //console.log(slackers);
         return _.map(slackers, (slacker, index) => {
             return (
-                <div key={index}>
-                    A reminder should be sent to student <b><i>{slacker[0]}</i></b>, because nothing has been submitted anything
-                    for {Math.floor(slacker[1] / 86400000)} days.&nbsp;&nbsp;&nbsp;
-                    <Button id="show" component={Link} to={{pathname:"details", exercises:this.state.jsonData.authors[slacker[0]].exercises, student:slacker[0]} }
-                            label="Show Details" variant="contained" color="primary" >
+                <ListItem key={index} >
+                    <ListItemText
+                        primary={slacker[2] + " (" + slacker[3] + ")"}
+                        secondary={"No submissions for " + Math.floor(slacker[1] / 86400000) + " days"}
+                    />
+                    {/* A reminder should be sent to student <b><i>{slacker[2]}</i></b> (<i>{slacker[3]}</i>), because nothing has been submitted anything
+                    for {Math.floor(slacker[1] / 86400000)} days.&nbsp;&nbsp;&nbsp; */}
+                    <Button id="show" component={Link} to={{ pathname: "details", exercises: this.state.jsonData.authors[slacker[0]].exercises, student: slacker[0] }}
+                        label="Show Details" variant="contained" color="primary" >
                         Show Details
                     </Button>
-                    <br/>
-                    <br/>
-                </div>
+                </ListItem>
             )
         });
     }
@@ -91,9 +93,9 @@ export class MainPage extends Component{
             const date = newDate.getDate()
             const year = newDate.getFullYear()
             return(
-                <div>
+                <div key={index}>
                     <h2>Week {index+1}: ending Friday, {month}/{date}/{year}</h2>
-                    {this.populateListofSlackers(times[index])}
+                    <List style={{"maxWidth": 600, "margin": "auto"}}>{this.populateListofSlackers(times[index])}</List>
                 </div>
             )
         })
@@ -108,11 +110,23 @@ export class MainPage extends Component{
     }
 
     componentDidMount() {
+        let name_email = require('../../resources/fake_names_emails.json');
         database.ref('/').once('value').then((snapshot) => {
             // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
+            let fetchedjson = snapshot.val();
+            if (fetchedjson.hasOwnProperty("authors")) {
+                let idx = 0
+                
+                for (var author_id in fetchedjson["authors"]) {
+                    var obj = fetchedjson["authors"][author_id];
+                    obj["name"] = name_email["people"][idx]["name"];
+                    obj["email"] = name_email["people"][idx]["email"];
+                    idx = idx + 1
+                }
+            }
             this.setState({
                 ...this.state,
-                jsonData: snapshot.val(),
+                jsonData: fetchedjson,
                 isLoaded: true
             });
         });
