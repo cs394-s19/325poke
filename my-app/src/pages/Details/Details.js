@@ -7,11 +7,11 @@ export class Details extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            exercises: this.props.location.exercises,
-            student: this.props.location.student,
+            exercises: this.props.location.exercises, 
+            student_id: this.props.location.student_id,
+            student_name: this.props.location.student_name,
             currentTime: this.props.location.currentTime,
         };
-        console.log(this.props.location.exercises)
     };
 
     toTime = (timestamp) => {
@@ -44,8 +44,24 @@ export class Details extends Component {
         }
         return (
           <div className="details" key={index}>
-            <h1>Exercise {index}</h1>
-            {this.populateListofSubmissions(hist)}
+            <h1>Exercise {index}</h1> 
+            {/* Status: <b>{exercise.status}</b> Last Submitted Time: <b>{this.toTime(exercise.submitted)}</b>
+            <br/>
+            <br/> */}
+            <div className="table">
+              <table className="details">
+                <tbody>
+                {_.map(exercise.submit_hist, (submission, index) => {
+                  return (
+                  <tr key={index}>
+                    <td>{exercise.submit_hist.length === (index + 1) ? <b>{submission.status}</b> : submission.status}</td>
+                    <td>{exercise.submit_hist.length === (index + 1) ? <b>{this.toTime(submission.submitted)}</b> : this.toTime(submission.submitted)}</td>
+                  </tr>
+                  )
+                })}
+                </tbody>
+              </table>
+            </div>
           </div>
         );
       });
@@ -59,8 +75,7 @@ export class Details extends Component {
       }
       return(
         <div>
-          <h1 className="details">Report for student {this.state.student}</h1>
-          <br/>
+          <h1 className="details">Report for {this.state.student_name}</h1>
           {pastSubs}
         </div>
       );
