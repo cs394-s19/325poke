@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import _ from 'lodash';
-import { Button, List, ListItem, ListItemText, Typography } from '@material-ui/core';
+import { Button, List, ListItem, ListItemText } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import './styles.css';
 import database from '../../firebase'
@@ -76,7 +76,7 @@ export class MainPage extends Component{
                     />
                     {/* A reminder should be sent to student <b><i>{slacker[2]}</i></b> (<i>{slacker[3]}</i>), because nothing has been submitted anything
                     for {Math.floor(slacker[1] / 86400000)} days.&nbsp;&nbsp;&nbsp; */}
-                    <Button id="show" component={Link} to={{ pathname: "details", exercises: this.state.jsonData.authors[slacker[0]].exercises, student: slacker[0] }}
+                    <Button id="show" component={Link} to={{ pathname: "details", exercises: this.state.jsonData.authors[slacker[0]].exercises, student_id: slacker[0], student_name: slacker[2] }}
                         label="Show Details" variant="contained" color="primary" >
                         Show Details
                     </Button>
