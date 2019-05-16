@@ -6,10 +6,14 @@ import './styles.css';
 import database from '../../firebase'
 
 const numDays = 4;
+const firstRemDays = 4;
+const secondRemDays = 7;
+const thirdRemDays = 10;
 
 // class start date = Thursday, September 27th
 const startDate = new Date('September 27, 2018 08:00:00').getTime()
-// first email date = Friday, September 28th, 8am
+const endDate = new Date('December 14, 2018 08:00:00').getTime()
+// first reporting date = Friday, September 28th, 8am
 const date1 = new Date('September 28, 2018 08:00:00').getTime()
 const date2 = new Date('October 5, 2018 08:00:00').getTime()
 const date3 = new Date('October 12, 2018 08:00:00').getTime()
@@ -30,10 +34,9 @@ const times = [date1, date2, date3, date4, date5, date6, date7, date8, date9, da
 export class MainPage extends Component {
 
     // given a base date, returns an array of author ids to which we need to send reminders
-    getAnyReminders(currentTime) {
+    getAnyReminders = (currentTime) => {
         // return an array with author ids
         const submissionData = this.state.jsonData;
-        //console.log(submissionData);
         const slackers = [];
         let authorId;
         for (authorId in submissionData.authors) {
@@ -45,6 +48,32 @@ export class MainPage extends Component {
         }
         //console.log("slackers: " + slackers);
         return slackers;
+    }
+
+    getReminderBuckets = (currentTime) => {
+        // return an object with 3 lists of author ids corresponding to sent reminders
+        const submissionData = this.state.jsonData;
+        const newReminders = {"rem1": [], "rem2": [], "rem3": [], "sentTime": currentTime};
+        let authorId;
+        for (authorId in submissionData.authors) {
+            const lastSubTime = this.mostRecentSubTime(submissionData.authors[authorId], currentTime);
+            const timeDiff = currentTime - lastSubTime;
+            if (timeDiff >= firstRemDays * 86400000 && timeDiff < (firstRemDays + 1) * 86400000) {
+                newReminders.rem1.push(authorId);
+            }
+            else if (timeDiff >= secondRemDays * 86400000 && timeDiff < (secondRemDays + 1) * 86400000) {
+                newReminders.rem2.push(authorId);
+            }
+            else if (timeDiff >= thirdRemDays * 86400000 && timeDiff < (thirdRemDays + 1) * 86400000) {
+                newReminders.rem3.push(authorId);
+            }
+        }
+        return newReminders;
+    }
+
+    generateRemindersForQuarter = (startDateTime, endDateTime) => {
+        const buckets = _.map(_.range(startDateTime, endDateTime + 1, 86400000), this.getReminderBuckets);
+        return _.mapValues(_.keyBy(buckets, o => o.sentTime), v => _.omit(v, 'sentTime'));
     }
 
     // function to ensure we only look at the previous submissions given a current time
@@ -86,7 +115,7 @@ export class MainPage extends Component {
     populateWeeklyList = () => {
         //console.log(this.state.jsonData.authors["1769"].exercises);
         return _.map(times, (weeklyDeadline, index) => {
-            console.log(weeklyDeadline);
+            // console.log(weeklyDeadline);
             const newDate = new Date(weeklyDeadline)
             const month = newDate.getMonth() + 1
             const date = newDate.getDate()
@@ -112,12 +141,12 @@ export class MainPage extends Component {
         let name_email = require('../../resources/fake_names_emails.json');
         database.ref('/').once('value').then((snapshot) => {
             // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
-            let fetchedjson = snapshot.val();
-            if (fetchedjson.hasOwnProperty("authors")) {
+            let fetchedJson = snapshot.val();
+            if (fetchedJson.hasOwnProperty("authors")) {
                 let idx = 0
-                
-                for (var author_id in fetchedjson["authors"]) {
-                    var obj = fetchedjson["authors"][author_id];
+
+                for (var author_id in fetchedJson["authors"]) {
+                    var obj = fetchedJson["authors"][author_id];
                     obj["name"] = name_email["people"][idx]["name"];
                     obj["email"] = name_email["people"][idx]["email"];
                     idx = idx + 1
@@ -125,13 +154,21 @@ export class MainPage extends Component {
             }
             this.setState({
                 ...this.state,
-                jsonData: fetchedjson,
+                jsonData: fetchedJson,
                 isLoaded: true
             });
+            // generate and push reminders
+            fetchedJson['reminders'] = this.generateRemindersForQuarter(startDate, endDate);
+            console.log(fetchedJson);
+            database.ref('/').update(fetchedJson);
         });
     }
 
     render() {
+      // Use these lines to see firebase data
+      database.ref('/').once('value').then((snapshot) => {
+          console.log(snapshot.val());
+      });
         return (
             <div className="Main">
                 <div className="fourday">
@@ -141,7 +178,7 @@ export class MainPage extends Component {
                     {this.state.isLoaded ? this.populateWeeklyList() : null}
                     {/* <h3>Week 11: Starting December 7, 2018</h3>
         {populateListofSlackers(times[10])} */}
-                </div> 
+                </div>
                 <div className="twoweek">
                     <h1>
                         The 2-week reminders:
