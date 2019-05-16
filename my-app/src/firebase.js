@@ -11,7 +11,7 @@ firebase.initializeApp(config);
 // Get a reference to the database service
 let database = firebase.database();
 
-
+// Below functions are for testing purposes
 function fetchJson() {
     // Fetch data from local file
     // TODO: In the future, the data would be fetched from Prof.Riesbeck's server
@@ -50,6 +50,9 @@ function updateJson(originjson, json) {
         formattedJson = {};
     if (!formattedJson.hasOwnProperty('authors')) {
         formattedJson['authors'] = {};
+    }
+    if (!formattedJson.hasOwnProperty('reminders')) {
+        formattedJson['reminders'] = {};
     }
     // reformat the json and also compare & merge with database
     let keyList = Object.keys(json['submissions']);
