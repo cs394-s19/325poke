@@ -131,12 +131,26 @@ export class MainPage extends Component {
         })
     }
 
+    // populate reminders
+    getWeeklyReminders = (startTime, endTime) => {
+      const weeklyReminders = _.filter(this.state.reminders, (timeStamp, index) => {
+        if(index > startTime && index < endTime) {
+          return true
+        }
+        else {
+          return false
+        }
+      })
+      console.log("weekly reminders: " + Object.values(weeklyReminders))
+      return weeklyReminders
+    }
+
     constructor(props) {
-        super(props);
-        this.state = {
-            jsonData: {},
-            isLoaded: false,
-        };
+      super(props);
+      this.state = {
+        jsonData: {},
+        isLoaded: false
+      }
     }
 
     componentDidMount() {
@@ -162,8 +176,18 @@ export class MainPage extends Component {
             // generate and push reminders
             fetchedJson['reminders'] = this.generateRemindersForQuarter(startDate, endDate);
             console.log(fetchedJson);
-            database.ref('/').update(fetchedJson);
+            database.ref('/').update(Object.values(fetchedJson));
         });
+        database.ref('/reminders').once('value').then((snapshot) => {
+          // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
+          let fetchedJson = snapshot.val();
+          this.setState({
+              ...this.state,
+              reminders: fetchedJson,
+          });
+          // generate and push reminders
+          console.log("reminders: " + Object.keys(fetchedJson));
+      });
     }
 
     render() {
@@ -171,6 +195,7 @@ export class MainPage extends Component {
       database.ref('/').once('value').then((snapshot) => {
           console.log(snapshot.val());
       });
+      this.getWeeklyReminders(1538398800000, 1538917200000)
         return (
             <div className="Main">
                 <Chart

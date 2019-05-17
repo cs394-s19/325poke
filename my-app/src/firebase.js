@@ -104,6 +104,13 @@ function updateJson(originjson, json) {
 //updateSubmissionInDatabase();
 export default database;
 
-
+// fetch reminders
+export function fetchReminders() {
+    // query database
+    let ref = database.ref('/reminders').once('value').then((snapshot) => {
+    console.log("these are the reminders: " + ref);
+    });
+    return ref
+}
 
 //database.ref('/').update(newJson);
