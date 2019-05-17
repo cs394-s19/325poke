@@ -1,4 +1,16 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Environment Setup
+
+To install the react-google-charts library, you should run
+
+```
+yarn add react-google-charts
+```
+or
+
+```
+npm i react-google-charts
+```
 
 ## Available Scripts
 

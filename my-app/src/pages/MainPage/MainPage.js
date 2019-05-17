@@ -4,6 +4,8 @@ import { Button, List, ListItem, ListItemText } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import './styles.css';
 import database from '../../firebase'
+import Chart from 'react-google-charts';
+//you should install react-google-charts through command "yarn add react-google-charts" or "npm i react-google-charts"
 
 const numDays = 4;
 const firstRemDays = 4;
@@ -171,6 +173,31 @@ export class MainPage extends Component {
       });
         return (
             <div className="Main">
+                <Chart
+                    width={'500px'}
+                    height={'300px'}
+                    chartType="Bar"
+                    loader={<div>Loading Chart</div>}
+                    data={[
+                        ['Day', '1st', '2nd', '3rd'],
+                        ['Sun', 1000, 400, 200],
+                        ['Mon', 1170, 460, 250],
+                        ['Tues', 660, 1120, 300],
+                        ['Wed', 1030, 540, 350],
+                        ['Thur', 1030, 540, 350],
+                        ['Fri', 1030, 540, 350],
+                        ['Sat', 1030, 540, 350],
+                    ]}
+                    options={{
+                        // Material design options
+                        chart: {
+                        title: 'Number of reminders',
+                        subtitle: 'Week 1',
+                        },
+                    }}
+                    // For tests
+                    rootProps={{ 'data-testid': '2' }}
+                />
                 <div className="fourday">
                     <h1>
                         The 4-day reminders:
