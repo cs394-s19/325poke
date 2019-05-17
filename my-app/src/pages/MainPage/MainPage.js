@@ -133,7 +133,7 @@ export class MainPage extends Component {
 
     // populate reminders
     getWeeklyReminders = (startTime, endTime) => {
-      const weeklyReminders = _.filter(this.state.reminders, (timeStamp, index) => {
+      const weeklyReminders = _.filter(this.state.reminders, (timeStamp, index) => { //TODO: rename
         if(index > startTime && index < endTime) {
           return true
         }
@@ -142,7 +142,33 @@ export class MainPage extends Component {
         }
       })
       console.log("weekly reminders: " + Object.values(weeklyReminders))
-      return weeklyReminders
+      return this.displayWeeklyReminders(weeklyReminders)
+    }
+
+    displayWeeklyReminders = (weeklyReminders) => {
+      // return _.map(weeklyReminders, (reminder, index) => {
+      //   _.map(reminder, (listofAuthors, bucket) => {
+      //     return (<p>{bucket}</p>)
+      //   })
+      return _.map(weeklyReminders, (reminder, index) => {
+        return (
+          <div>
+            <p>index: {index}</p>
+            {_.map(reminder, (listofAuthors, bucket) => {
+                return (
+                  <div>
+                    <p>{bucket}</p>
+                  <p>{_.map(listofAuthors, (authorId, randomKey) => {
+                    return (
+                      <p>reminder sent to {authorId}</p>
+                    )
+                  })}</p>
+                  </div>
+        )
+      })}
+          </div>
+        )
+      })
     }
 
     constructor(props) {
@@ -195,7 +221,6 @@ export class MainPage extends Component {
       database.ref('/').once('value').then((snapshot) => {
           console.log(snapshot.val());
       });
-      this.getWeeklyReminders(1538398800000, 1538917200000)
         return (
             <div className="Main">
                 <Chart
@@ -223,6 +248,8 @@ export class MainPage extends Component {
                     // For tests
                     rootProps={{ 'data-testid': '2' }}
                 />
+                <h1>Here are the reminders for this week:</h1>
+                <div>{this.getWeeklyReminders(1538398800000, 1538917200000)}</div>
                 <div className="fourday">
                     <h1>
                         The 4-day reminders:
