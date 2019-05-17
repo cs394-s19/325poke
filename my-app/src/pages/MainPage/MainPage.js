@@ -164,8 +164,8 @@ export class MainPage extends Component {
                     )
                   })}</p>
                   </div>
-        )
-      })}
+                )
+            })}
           </div>
         )
       })
@@ -223,7 +223,8 @@ export class MainPage extends Component {
       });
         return (
             <div className="Main">
-                <Chart
+            <br/><br/><br/>
+                <Chart className="Chart"
                     width={'500px'}
                     height={'300px'}
                     chartType="Bar"
@@ -248,20 +249,25 @@ export class MainPage extends Component {
                     // For tests
                     rootProps={{ 'data-testid': '2' }}
                 />
-                <h1>Here are the reminders for this week:</h1>
-                <div>{this.getWeeklyReminders(1538398800000, 1538917200000)}</div>
-                <div className="fourday">
-                    <h1>
-                        The 4-day reminders:
-                    </h1>
-                    {this.state.isLoaded ? this.populateWeeklyList() : null}
-                    {/* <h3>Week 11: Starting December 7, 2018</h3>
-        {populateListofSlackers(times[10])} */}
+                
+                <div className="bucket">
+                    <h1>Here are the reminders for this week:</h1>
+                    <div>{this.getWeeklyReminders(1538398800000, 1538917200000)}</div>
                 </div>
-                <div className="twoweek">
-                    <h1>
-                        The 2-week reminders:
-                    </h1>
+                <div className="reminderDetails">
+                    <div className="fourday">
+                        <h1>
+                            The 4-day reminders:
+                        </h1>
+                        {this.state.isLoaded ? this.populateWeeklyList() : null}
+                        {/* <h3>Week 11: Starting December 7, 2018</h3>
+                        {populateListofSlackers(times[10])} */}
+                    </div>
+                    <div className="twoweek">
+                        <h1>
+                            The 2-week reminders:
+                        </h1>
+                    </div>
                 </div>
             </div>
         );
