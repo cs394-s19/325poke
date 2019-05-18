@@ -1,3 +1,5 @@
+let _ = require('lodash');
+
 let firebase = require('firebase');
 var config = {
     apiKey: "AIzaSyAEWyUd8kAtjRRMVGZCV07f1IoQrWeLzls",
@@ -10,6 +12,13 @@ firebase.initializeApp(config);
 
 // Get a reference to the database service
 let database = firebase.database();
+
+const startDate = new Date('September 27, 2018 08:00:00').getTime()
+const endDate = new Date('December 14, 2018 08:00:00').getTime()
+const numDays = 4;
+const firstRemDays = 4;
+const secondRemDays = 7;
+const thirdRemDays = 10;
 
 // Below functions are for testing purposes
 function fetchJson() {
@@ -43,6 +52,46 @@ function isSubmitInSubmitHist(hist, newSubmit) {
     return res;
 }
 
+function forgetFutureSubmissions(submissionTime, currentTime) {
+    // console.log(submissionTime);
+    if (submissionTime > currentTime) {
+        return startDate; // to calculate number of days without work at beginning of quarter
+    } else {
+        return submissionTime;
+    }
+}
+
+function mostRecentSubTime(author, currentTime) {
+    return _.max(_.values(_.mapValues(author.exercises, (o => forgetFutureSubmissions(o.submitted, currentTime)))));
+}
+
+function getReminderBuckets(jsonData, currentTime) {
+    // return an object with 3 lists of author ids corresponding to sent reminders
+    const submissionData = jsonData;
+    const newReminders = {"rem1": [], "rem2": [], "rem3": [], "sentTime": currentTime};
+    let authorId;
+    for (authorId in submissionData.authors) {
+        const lastSubTime = mostRecentSubTime(submissionData.authors[authorId], currentTime);
+        const timeDiff = currentTime - lastSubTime;
+        if (timeDiff >= firstRemDays * 86400000 && timeDiff < (firstRemDays + 1) * 86400000) {
+            newReminders.rem1.push(authorId);
+        }
+        else if (timeDiff >= secondRemDays * 86400000 && timeDiff < (secondRemDays + 1) * 86400000) {
+            newReminders.rem2.push(authorId);
+        }
+        else if (timeDiff >= thirdRemDays * 86400000 && timeDiff < (thirdRemDays + 1) * 86400000) {
+            newReminders.rem3.push(authorId);
+        }
+    }
+    return newReminders;
+}
+
+function generateRemindersForQuarter(jsonData, startDateTime, endDateTime) {
+    let getReminderBucketsCurry = _.curry(getReminderBuckets)(jsonData);
+    const buckets = _.map(_.range(startDateTime, endDateTime + 1, 86400000), getReminderBucketsCurry);
+    return _.mapValues(_.keyBy(buckets, o => o.sentTime), v => _.omit(v, 'sentTime'));
+}
+
 function updateJson(originjson, json) {
     // fetch formatted json from database
     let formattedJson = originjson;
@@ -51,9 +100,7 @@ function updateJson(originjson, json) {
     if (!formattedJson.hasOwnProperty('authors')) {
         formattedJson['authors'] = {};
     }
-    if (!formattedJson.hasOwnProperty('reminders')) {
-        formattedJson['reminders'] = {};
-    }
+
     // reformat the json and also compare & merge with database
     let keyList = Object.keys(json['submissions']);
     keyList.forEach((key) => {
@@ -96,7 +143,10 @@ function updateJson(originjson, json) {
     });
 
 
-
+    if (!formattedJson.hasOwnProperty('reminders')) {
+        formattedJson['reminders'] = {};
+    }
+    formattedJson['reminders'] = generateRemindersForQuarter(formattedJson, startDate, endDate);
 
     return formattedJson;
 }

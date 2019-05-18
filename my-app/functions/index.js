@@ -5,6 +5,13 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp();
 
+const startDate = new Date('September 27, 2018 08:00:00').getTime()
+const endDate = new Date('December 14, 2018 08:00:00').getTime()
+const numDays = 4;
+const firstRemDays = 4;
+const secondRemDays = 7;
+const thirdRemDays = 10;
+
 
 function isSubmitInSubmitHist(hist, newSubmit) {
     let res = false;
@@ -25,6 +32,46 @@ function fetchJson() {
     return json;
 }
 
+function forgetFutureSubmissions(submissionTime, currentTime) {
+    // console.log(submissionTime);
+    if (submissionTime > currentTime) {
+        return startDate; // to calculate number of days without work at beginning of quarter
+    } else {
+        return submissionTime;
+    }
+}
+
+function mostRecentSubTime(author, currentTime) {
+    return _.max(_.values(_.mapValues(author.exercises, (o => forgetFutureSubmissions(o.submitted, currentTime)))));
+}
+
+function getReminderBuckets(jsonData, currentTime) {
+    // return an object with 3 lists of author ids corresponding to sent reminders
+    const submissionData = jsonData;
+    const newReminders = {"rem1": [], "rem2": [], "rem3": [], "sentTime": currentTime};
+    let authorId;
+    for (authorId in submissionData.authors) {
+        const lastSubTime = mostRecentSubTime(submissionData.authors[authorId], currentTime);
+        const timeDiff = currentTime - lastSubTime;
+        if (timeDiff >= firstRemDays * 86400000 && timeDiff < (firstRemDays + 1) * 86400000) {
+            newReminders.rem1.push(authorId);
+        }
+        else if (timeDiff >= secondRemDays * 86400000 && timeDiff < (secondRemDays + 1) * 86400000) {
+            newReminders.rem2.push(authorId);
+        }
+        else if (timeDiff >= thirdRemDays * 86400000 && timeDiff < (thirdRemDays + 1) * 86400000) {
+            newReminders.rem3.push(authorId);
+        }
+    }
+    return newReminders;
+}
+
+function generateRemindersForQuarter(jsonData, startDateTime, endDateTime) {
+    let getReminderBucketsCurry = _.curry(getReminderBuckets)(jsonData);
+    const buckets = _.map(_.range(startDateTime, endDateTime + 1, 86400000), getReminderBucketsCurry);
+    return _.mapValues(_.keyBy(buckets, o => o.sentTime), v => _.omit(v, 'sentTime'));
+}
+
 function updateJson(originjson, json) {
     // fetch formatted json from database
     let formattedJson = originjson;
@@ -33,6 +80,7 @@ function updateJson(originjson, json) {
     if (!formattedJson.hasOwnProperty('authors')) {
         formattedJson['authors'] = {};
     }
+
     // reformat the json and also compare & merge with database
     let keyList = Object.keys(json['submissions']);
     keyList.forEach((key) => {
@@ -45,33 +93,39 @@ function updateJson(originjson, json) {
         } else if (!formattedJson['authors'][submitObject['author']].hasOwnProperty('submissions')) {
             formattedJson['authors'][submitObject['author']]['submissions'] = [];
         }
+        if (!formattedJson['authors'][submitObject['author']]['exercises'].hasOwnProperty('ignoreme')) {
+            formattedJson['authors'][submitObject['author']]['exercises']['ignoreme'] = true;
+        }
         // make a new variable to make expression shorter(actually not that much)
         let currSubmissions = formattedJson['authors'][submitObject['author']]['exercises'];
         // check if the specific author have the specific exid
-        let strExid = submitObject['exid'].toString();
-        if (!currSubmissions.hasOwnProperty(strExid)) {
+        let exid = submitObject['exid'];
+        if (!currSubmissions.hasOwnProperty(exid)) {
             // initialize the required fields
-            currSubmissions[strExid] = {};
-            currSubmissions[strExid]["submitted"] = submitObject['submitted'];
-            currSubmissions[strExid]["submit_hist"] = [];
-            currSubmissions[strExid]["submit_hist"].push(submitObject);
+            currSubmissions[exid] = {};
+            currSubmissions[exid]["submitted"] = submitObject['submitted'];
+            currSubmissions[exid]["submit_hist"] = [];
+            currSubmissions[exid]["submit_hist"].push(submitObject);
         }
-        if (currSubmissions[strExid]["submitted"] < submitObject['submitted'])
-            currSubmissions[strExid]["submitted"] = submitObject['submitted'];
+        if (currSubmissions[exid]["submitted"] < submitObject['submitted'])
+            currSubmissions[exid]["submitted"] = submitObject['submitted'];
         // check corner case (mainly caused by old data)
-        if (!currSubmissions[strExid].hasOwnProperty("submit_hist"))
-            currSubmissions[strExid]["submit_hist"] = [];
+        if (!currSubmissions[exid].hasOwnProperty("submit_hist"))
+            currSubmissions[exid]["submit_hist"] = [];
         // if the current data is not in the submit history, add it
-        if (!isSubmitInSubmitHist(currSubmissions[strExid]["submit_hist"], submitObject)) {
-            currSubmissions[strExid]["submit_hist"].push(submitObject);
+        if (!isSubmitInSubmitHist(currSubmissions[exid]["submit_hist"], submitObject)) {
+            currSubmissions[exid]["submit_hist"].push(submitObject);
         }
         if (!isSubmitInSubmitHist(formattedJson['authors'][submitObject['author']]['submissions'], submitObject)) {
             formattedJson['authors'][submitObject['author']]['submissions'].push(submitObject);
         }
-        formattedJson['authors'][submitObject['author']]['exercises'][strExid]["status"] = submitObject['status'];
+        formattedJson['authors'][submitObject['author']]['exercises'][exid]["status"] = submitObject['status'];
     });
 
-
+    if (!formattedJson.hasOwnProperty('reminders')) {
+        formattedJson['reminders'] = {};
+    }
+    formattedJson['reminders'] = generateRemindersForQuarter(formattedJson, startDate, endDate);
 
 
     return formattedJson;
