@@ -134,7 +134,7 @@ export class MainPage extends Component {
     // populate reminders
     getWeeklyReminders = (startTime, endTime) => {
       const weeklyReminders = _.filter(this.state.reminders, (timeStamp, index) => { //TODO: rename
-        if(index > startTime && index < endTime) {
+        if(index >= startTime && index <= endTime) {
           return true
         }
         else {
@@ -142,6 +142,7 @@ export class MainPage extends Component {
         }
       })
       console.log("weekly reminders: " + Object.values(weeklyReminders))
+      // return weeklyReminders
       return this.displayWeeklyReminders(weeklyReminders)
     }
 
@@ -169,6 +170,39 @@ export class MainPage extends Component {
           </div>
         )
       })
+    }
+
+    listWeeklyReminders = (startTime, endTime) => {
+      const weeklyReminders = _.pickBy(this.state.reminders, (timeStamp, index) => { //TODO: rename
+        if(index >= startTime && index <= endTime) {
+          return true
+        }
+        else {
+          return false
+        }
+      })
+      console.log("listweeklyreminders timestamp: " + Object.keys(weeklyReminders))
+      return weeklyReminders
+    }
+    // get daily reminders for histogram
+    getDailyReminder = () => {
+      const weeklyReminders = this.listWeeklyReminders(1540184400000, 1540789200000)
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      var resultData = [['Day', '1st', '2nd', '3rd']]
+      _.map(weeklyReminders, (oneDayRem, timeStamp) => {
+        var oneDayData = ["", 0, 0, 0]
+        var dayIndex = new Date(Number(timeStamp)).getDay()
+        oneDayData[0] = (days[dayIndex])
+        _.map(oneDayRem, (authors, bucket) => {
+          console.log("bucket: " + authors)
+          if (bucket == 'rem1') {oneDayData[1] = authors.length}
+          else if (bucket == 'rem2') {oneDayData[2] = authors.length}
+          else if (bucket == 'rem3') {oneDayData[3] = authors.length}
+        })
+        resultData.push(oneDayData)
+      })
+      console.log("result: " + resultData)
+      return resultData
     }
 
     constructor(props) {
@@ -232,21 +266,12 @@ export class MainPage extends Component {
                     height={'300px'}
                     chartType="Bar"
                     loader={<div>Loading Chart</div>}
-                    data={[
-                        ['Day', '1st', '2nd', '3rd'],
-                        ['Sun', 1000, 400, 200],
-                        ['Mon', 1170, 460, 250],
-                        ['Tues', 660, 1120, 300],
-                        ['Wed', 1030, 540, 350],
-                        ['Thur', 1030, 540, 350],
-                        ['Fri', 1030, 540, 350],
-                        ['Sat', 1030, 540, 350],
-                    ]}
+                    data={this.getDailyReminder()}
                     options={{
                         // Material design options
                         chart: {
                         title: 'Number of reminders',
-                        subtitle: 'Week 1',
+                        subtitle: 'Week 5',
                         },
                     }}
                     // For tests
