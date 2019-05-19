@@ -199,10 +199,13 @@ export class MainPage extends Component {
                 jsonData: fetchedJson,
                 isLoaded: true
             });
+            //
+            // The code below is now moved to firebase.js(for test) and functions/index.js (real use)
+            //
             // generate and push reminders
-            fetchedJson['reminders'] = this.generateRemindersForQuarter(startDate, endDate);
-            console.log(fetchedJson);
-            database.ref('/').update(Object.values(fetchedJson));
+            // fetchedJson['reminders'] = this.generateRemindersForQuarter(startDate, endDate);
+            // console.log(fetchedJson);
+            // database.ref('/').update(Object.values(fetchedJson));
         });
         database.ref('/reminders').once('value').then((snapshot) => {
           // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
