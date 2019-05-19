@@ -1,11 +1,31 @@
 import React, {Component} from 'react';
 import _ from 'lodash';
-import { Button, List, ListItem, ListItemText } from '@material-ui/core';
-import { Link } from 'react-router-dom';
+import {Button, List, ListItem, ListItemText, AppBar, Toolbar, Typography, IconButton} from '@material-ui/core';
+import {Link} from 'react-router-dom';
 import './styles.css';
 import database from '../../firebase'
 import Chart from 'react-google-charts';
+import ReactTable from 'react-table'
+import FormControl from "@material-ui/core/FormControl";
+import InputLabel from "@material-ui/core/InputLabel";
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
+import withStyles from "@material-ui/core/styles/withStyles";
 //you should install react-google-charts through command "yarn add react-google-charts" or "npm i react-google-charts"
+
+// styles
+const styles = {
+    textField: {
+        width: 300,
+        fontSize: 50,
+    },
+    weekColor: {
+        color: 'white',
+    },
+    arrowColor: {
+        fill: 'white'
+    }
+}
 
 const numDays = 4;
 const firstRemDays = 4;
@@ -33,7 +53,7 @@ const date12 = new Date('December 14, 2018 08:00:00').getTime()
 const times = [date1, date2, date3, date4, date5, date6, date7, date8, date9, date10, date11, date12];
 
 
-export class MainPage extends Component {
+class MainPage extends Component {
 
     // given a base date, returns an array of author ids to which we need to send reminders
     getAnyReminders = (currentTime) => {
@@ -62,11 +82,9 @@ export class MainPage extends Component {
             const timeDiff = currentTime - lastSubTime;
             if (timeDiff >= firstRemDays * 86400000 && timeDiff < (firstRemDays + 1) * 86400000) {
                 newReminders.rem1.push(authorId);
-            }
-            else if (timeDiff >= secondRemDays * 86400000 && timeDiff < (secondRemDays + 1) * 86400000) {
+            } else if (timeDiff >= secondRemDays * 86400000 && timeDiff < (secondRemDays + 1) * 86400000) {
                 newReminders.rem2.push(authorId);
-            }
-            else if (timeDiff >= thirdRemDays * 86400000 && timeDiff < (thirdRemDays + 1) * 86400000) {
+            } else if (timeDiff >= thirdRemDays * 86400000 && timeDiff < (thirdRemDays + 1) * 86400000) {
                 newReminders.rem3.push(authorId);
             }
         }
@@ -98,15 +116,21 @@ export class MainPage extends Component {
         //console.log(slackers);
         return _.map(slackers, (slacker, index) => {
             return (
-                <ListItem key={index} >
+                <ListItem key={index}>
                     <ListItemText
                         primary={slacker[2] + " (" + slacker[3] + ")"}
                         secondary={"No submissions for " + Math.floor(slacker[1] / 86400000) + " days"}
                     />
                     {/* A reminder should be sent to student <b><i>{slacker[2]}</i></b> (<i>{slacker[3]}</i>), because nothing has been submitted anything
                     for {Math.floor(slacker[1] / 86400000)} days.&nbsp;&nbsp;&nbsp; */}
-                    <Button id="show" component={Link} to={{ pathname: "details", exercises: this.state.jsonData.authors[slacker[0]].exercises, student_id: slacker[0], student_name: slacker[2], currentTime: currentTime }}
-                        label="Show Details" variant="contained" color="primary" >
+                    <Button id="show" component={Link} to={{
+                        pathname: "details",
+                        exercises: this.state.jsonData.authors[slacker[0]].exercises,
+                        student_id: slacker[0],
+                        student_name: slacker[2],
+                        currentTime: currentTime
+                    }}
+                            label="Show Details" variant="contained" color="primary">
                         Show Details
                     </Button>
                 </ListItem>
@@ -122,9 +146,9 @@ export class MainPage extends Component {
             const month = newDate.getMonth() + 1
             const date = newDate.getDate()
             const year = newDate.getFullYear()
-            return(
+            return (
                 <div key={index}>
-                    <h2>Week {index+1}: ending Friday, {month}/{date}/{year}</h2>
+                    <h2>Week {index + 1}: ending Friday, {month}/{date}/{year}</h2>
                     <List style={{"maxWidth": 600, "margin": "auto"}}>{this.populateListofSlackers(times[index])}</List>
                 </div>
             )
@@ -133,50 +157,49 @@ export class MainPage extends Component {
 
     // populate reminders
     getWeeklyReminders = (startTime, endTime) => {
-      const weeklyReminders = _.filter(this.state.reminders, (timeStamp, index) => { //TODO: rename
-        if(index > startTime && index < endTime) {
-          return true
-        }
-        else {
-          return false
-        }
-      })
-      console.log("weekly reminders: " + Object.values(weeklyReminders))
-      return this.displayWeeklyReminders(weeklyReminders)
+        const weeklyReminders = _.filter(this.state.reminders, (timeStamp, index) => { //TODO: rename
+            if (index > startTime && index < endTime) {
+                return true
+            } else {
+                return false
+            }
+        })
+        console.log("weekly reminders: " + Object.values(weeklyReminders))
+        return this.displayWeeklyReminders(weeklyReminders)
     }
 
     displayWeeklyReminders = (weeklyReminders) => {
-      // return _.map(weeklyReminders, (reminder, index) => {
-      //   _.map(reminder, (listofAuthors, bucket) => {
-      //     return (<p>{bucket}</p>)
-      //   })
-      return _.map(weeklyReminders, (reminder, index) => {
-        return (
-          <div>
-            <p>index: {index}</p>
-            {_.map(reminder, (listofAuthors, bucket) => {
-                return (
-                  <div>
-                    <p>{bucket}</p>
-                  <p>{_.map(listofAuthors, (authorId, randomKey) => {
-                    return (
-                      <p>reminder sent to {authorId}</p>
-                    )
-                  })}</p>
-                  </div>
-                )
-            })}
-          </div>
-        )
-      })
+        // return _.map(weeklyReminders, (reminder, index) => {
+        //   _.map(reminder, (listofAuthors, bucket) => {
+        //     return (<p>{bucket}</p>)
+        //   })
+        return _.map(weeklyReminders, (reminder, index) => {
+            return (
+                <div>
+                    <p>index: {index}</p>
+                    {_.map(reminder, (listofAuthors, bucket) => {
+                        return (
+                            <div>
+                                <p>{bucket}</p>
+                                <p>{_.map(listofAuthors, (authorId, randomKey) => {
+                                    return (
+                                        <p>reminder sent to {authorId}</p>
+                                    )
+                                })}</p>
+                            </div>
+                        )
+                    })}
+                </div>
+            )
+        })
     }
 
     constructor(props) {
-      super(props);
-      this.state = {
-        jsonData: {},
-        isLoaded: false
-      }
+        super(props);
+        this.state = {
+            jsonData: {},
+            isLoaded: false
+        }
     }
 
     componentDidMount() {
@@ -197,7 +220,8 @@ export class MainPage extends Component {
             this.setState({
                 ...this.state,
                 jsonData: fetchedJson,
-                isLoaded: true
+                isLoaded: true,
+                currWeek: 1,
             });
             //
             // The code below is now moved to firebase.js(for test) and functions/index.js (real use)
@@ -208,51 +232,84 @@ export class MainPage extends Component {
             // database.ref('/').update(Object.values(fetchedJson));
         });
         database.ref('/reminders').once('value').then((snapshot) => {
-          // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
-          let fetchedJson = snapshot.val();
-          this.setState({
-              ...this.state,
-              reminders: fetchedJson,
-          });
-          // generate and push reminders
-          console.log("reminders: " + Object.keys(fetchedJson));
-      });
+            // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
+            let fetchedJson = snapshot.val();
+            this.setState({
+                ...this.state,
+                reminders: fetchedJson,
+            });
+            // generate and push reminders
+            console.log("reminders: " + Object.keys(fetchedJson));
+        });
     }
 
+    handleWeekChange = event => {
+        this.setState({ currWeek: event.target.value });
+    };
+
     render() {
-      // Use these lines to see firebase data
-      database.ref('/').once('value').then((snapshot) => {
-          console.log(snapshot.val());
-      });
+        // Use these lines to see firebase data
+        // database.ref('/').once('value').then((snapshot) => {
+        //     console.log(snapshot.val());
+        // });
+        const {classes} = this.props;
         return (
             <div className="Main">
-            <br/><br/><br/>
+                <AppBar position="static">
+                    <Toolbar>
+                    <span>Week</span> &nbsp;
+                        <form autoComplete="off">
+                            <FormControl>
+                                {/*<InputLabel shrink htmlFor='week-selector' style={{color: 'white'}}>*/}
+                                    {/*Week*/}
+                                {/*</InputLabel>*/}
+                                <Select
+                                    style={{ color: 'white'}}
+                                    disableUnderline={true}
+                                    value={this.state.currWeek}
+                                    onChange={this.handleWeekChange}
+                                    inputProps={{
+                                        id: 'week-selector',
+                                        classes: {
+                                            icon: classes.arrowColor,
+                                        }
+                                    }}
+                                >
+                                    <MenuItem value={1}>1</MenuItem>
+                                    <MenuItem value={2}>2</MenuItem>
+                                    <MenuItem value={3}>3</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </form>
+                    </Toolbar>
+                </AppBar>
+                <br/><br/><br/>
                 <Chart className="Chart"
-                    width={'500px'}
-                    height={'300px'}
-                    chartType="Bar"
-                    loader={<div>Loading Chart</div>}
-                    data={[
-                        ['Day', '1st', '2nd', '3rd'],
-                        ['Sun', 1000, 400, 200],
-                        ['Mon', 1170, 460, 250],
-                        ['Tues', 660, 1120, 300],
-                        ['Wed', 1030, 540, 350],
-                        ['Thur', 1030, 540, 350],
-                        ['Fri', 1030, 540, 350],
-                        ['Sat', 1030, 540, 350],
-                    ]}
-                    options={{
-                        // Material design options
-                        chart: {
-                        title: 'Number of reminders',
-                        subtitle: 'Week 1',
-                        },
-                    }}
+                       width={'500px'}
+                       height={'300px'}
+                       chartType="Bar"
+                       loader={<div>Loading Chart</div>}
+                       data={[
+                           ['Day', '1st', '2nd', '3rd'],
+                           ['Sun', 1000, 400, 200],
+                           ['Mon', 1170, 460, 250],
+                           ['Tues', 660, 1120, 300],
+                           ['Wed', 1030, 540, 350],
+                           ['Thur', 1030, 540, 350],
+                           ['Fri', 1030, 540, 350],
+                           ['Sat', 1030, 540, 350],
+                       ]}
+                       options={{
+                           // Material design options
+                           chart: {
+                               title: 'Number of reminders',
+                               subtitle: 'Week 1',
+                           },
+                       }}
                     // For tests
-                    rootProps={{ 'data-testid': '2' }}
+                       rootProps={{'data-testid': '2'}}
                 />
-                
+
                 <div className="bucket">
                     <h1>Here are the reminders for this week:</h1>
                     <div>{this.getWeeklyReminders(1538398800000, 1538917200000)}</div>
@@ -277,3 +334,5 @@ export class MainPage extends Component {
     }
 
 }
+
+export const StyledMainPage = withStyles(styles)(MainPage)
