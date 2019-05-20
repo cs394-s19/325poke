@@ -11,6 +11,8 @@ import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import withStyles from "@material-ui/core/styles/withStyles";
+
+import { ReminderTable } from '../../components';
 //you should install react-google-charts through command "yarn add react-google-charts" or "npm i react-google-charts"
 
 // styles
@@ -283,6 +285,7 @@ class MainPage extends Component {
                         </form>
                     </Toolbar>
                 </AppBar>
+                <ReminderTable />
                 <br/><br/><br/>
                 <Chart className="Chart"
                        width={'500px'}
