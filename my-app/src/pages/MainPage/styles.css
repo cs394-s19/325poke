@@ -1,0 +1,27 @@
+.Main{
+    text-align: center;
+}
+.chartHeader{
+    position: absolute;
+    left: 30;
+}
+/* .Chart{
+
+} */
+/* .reminderDetails{
+    position: absolute;
+    left: 0;
+} */
+/* .fourday{
+    position: absolute;
+      left: 0;
+} */
+.bucket{
+    position: absolute;
+    left: 30;
+}
+
+/* .twoweek{
+    margin-left: 200px;
+    height: 200px;
+} */
