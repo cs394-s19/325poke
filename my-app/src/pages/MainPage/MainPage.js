@@ -198,7 +198,7 @@ class MainPage extends Component {
 
     // based on getWeeklyReminders()
     getRemindersByChart(index, bucket) {
-        const startTime = this.state.weekDict[this.state.currWeek].startDate;
+        const startTime = this.state.weekDict[this.state.currWeek].startDate + 1;
         const endTime = this.state.weekDict[this.state.currWeek].endDate;
         const weeklyReminders = _.filter(this.state.reminders, (timeStamp, index) => { //TODO: rename
             if (index >= startTime && index <= endTime) {
@@ -296,7 +296,8 @@ class MainPage extends Component {
     }
 
     getDailyReminderByWeek = (week) => {
-        const weeklyReminders = this.listWeeklyReminders(this.state.weekDict[week].startDate, this.state.weekDict[week].endDate)
+        const weeklyReminders = this.listWeeklyReminders(this.state.weekDict[week].startDate + 1, this.state.weekDict[week].endDate)
+        console.log(weeklyReminders);
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         var resultData = [['Day', '1st', '2nd', '3rd']]
         _.map(weeklyReminders, (oneDayRem, timeStamp) => {
@@ -328,6 +329,20 @@ class MainPage extends Component {
             currIndex: 1,
             currBucket: 1,
         }
+        this.chartEvents = [
+            {
+                eventName: 'select',
+                callback: ({ chartWrapper }) => {
+                    const chart = chartWrapper.getChart()
+                    const selection = chart.getSelection()
+                    this.setState({
+                        ...this.state,
+                        currIndex: selection[0].row,
+                        currBucket: selection[0].column,
+                    })
+                }
+            },
+        ];
     }
 
     componentDidMount() {
@@ -372,20 +387,6 @@ class MainPage extends Component {
         // database.ref('/').once('value').then((snapshot) => {
         //     console.log(snapshot.val());
         // });
-        this.chartEvents = [
-            {
-                eventName: 'select',
-                callback: ({ chartWrapper }) => {
-                    const chart = chartWrapper.getChart()
-                    const selection = chart.getSelection()
-                    this.setState({
-                        ...this.state,
-                        currIndex: selection[0].row,
-                        currBucket: selection[0].column,
-                    })
-                }
-            }
-        ];
         const {classes} = this.props;
         const {currWeek, weekDict} = this.state;
         return (
