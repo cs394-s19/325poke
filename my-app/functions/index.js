@@ -128,6 +128,16 @@ function updateJson(originjson, json) {
     formattedJson['reminders'] = generateRemindersForQuarter(formattedJson, startDate, endDate);
 
 
+    // store reminders in specific author
+    _.forEach(formattedJson['reminders'], (remList, timestamp) => {
+        _.forEach(remList, (content, remType) => {
+            _.forEach(content, (authorID) => {
+                formattedJson['authors'][authorID]['reminders'][timestamp] = [];
+                formattedJson['authors'][authorID]['reminders'][timestamp].push(remType);
+            })
+        })
+    });
+
     return formattedJson;
 }
 

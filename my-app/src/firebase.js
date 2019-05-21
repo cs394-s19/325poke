@@ -44,9 +44,9 @@ function isSubmitInSubmitHist(hist, newSubmit) {
     let res = false;
     hist.forEach((submit) => {
         if (submit["author"] === newSubmit["author"]
-        && submit["submitted"] === newSubmit["submitted"]
-        && submit["exid"] === newSubmit["exid"]
-        && submit["status"] === newSubmit["status"])
+            && submit["submitted"] === newSubmit["submitted"]
+            && submit["exid"] === newSubmit["exid"]
+            && submit["status"] === newSubmit["status"])
             res = true;
     });
     return res;
@@ -75,11 +75,9 @@ function getReminderBuckets(jsonData, currentTime) {
         const timeDiff = currentTime - lastSubTime;
         if (timeDiff >= firstRemDays * 86400000 && timeDiff < (firstRemDays + 1) * 86400000) {
             newReminders.rem1.push(authorId);
-        }
-        else if (timeDiff >= secondRemDays * 86400000 && timeDiff < (secondRemDays + 1) * 86400000) {
+        } else if (timeDiff >= secondRemDays * 86400000 && timeDiff < (secondRemDays + 1) * 86400000) {
             newReminders.rem2.push(authorId);
-        }
-        else if (timeDiff >= thirdRemDays * 86400000 && timeDiff < (thirdRemDays + 1) * 86400000) {
+        } else if (timeDiff >= thirdRemDays * 86400000 && timeDiff < (thirdRemDays + 1) * 86400000) {
             newReminders.rem3.push(authorId);
         }
     }
@@ -110,11 +108,15 @@ function updateJson(originjson, json) {
             formattedJson['authors'][submitObject['author']] = {};
             formattedJson['authors'][submitObject['author']]['exercises'] = {};
             formattedJson['authors'][submitObject['author']]['submissions'] = [];
+            formattedJson['authors'][submitObject['author']]['reminders'] = {};
         } else if (!formattedJson['authors'][submitObject['author']].hasOwnProperty('submissions')) {
             formattedJson['authors'][submitObject['author']]['submissions'] = [];
         }
         if (!formattedJson['authors'][submitObject['author']]['exercises'].hasOwnProperty('ignoreme')) {
             formattedJson['authors'][submitObject['author']]['exercises']['ignoreme'] = true;
+        }
+        if (!formattedJson['authors'][submitObject['author']].hasOwnProperty('reminders')) {
+            formattedJson['authors'][submitObject['author']]['reminders'] = {};
         }
         // make a new variable to make expression shorter(actually not that much)
         let currSubmissions = formattedJson['authors'][submitObject['author']]['exercises'];
@@ -148,10 +150,21 @@ function updateJson(originjson, json) {
     }
     formattedJson['reminders'] = generateRemindersForQuarter(formattedJson, startDate, endDate);
 
+
+    // store reminders in specific author
+    _.forEach(formattedJson['reminders'], (remList, timestamp) => {
+        _.forEach(remList, (content, remType) => {
+            _.forEach(content, (authorID) => {
+                formattedJson['authors'][authorID]['reminders'][timestamp] = [];
+                formattedJson['authors'][authorID]['reminders'][timestamp].push(remType);
+            })
+        })
+    });
+
     return formattedJson;
 }
 
-//updateSubmissionInDatabase();
+// updateSubmissionInDatabase();
 export default database;
 
 //database.ref('/').update(newJson);

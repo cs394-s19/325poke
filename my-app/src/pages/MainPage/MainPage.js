@@ -449,7 +449,7 @@ class MainPage extends Component {
                 />
 
                 <div className="bucket">
-                    <h1>Here are the reminders for this week:</h1>
+                    <h1>Here are the reminders for this day:</h1>
                     {/*<div>{this.getWeeklyReminders(weekDict[currWeek].startDate, weekDict[currWeek].endDate)}</div>*/}
                     <div>{this.state.isLoaded ? this.getRemindersByChart(this.state.currIndex, this.state.currBucket) : null}</div>
                 </div>
