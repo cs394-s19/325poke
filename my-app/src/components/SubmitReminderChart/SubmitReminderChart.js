@@ -27,12 +27,21 @@ export class SubmitReminderChart extends Component {
     }
     constructor(props) {
         super(props);
+        //console.log(this.option);
+    }
+
+    componentDidMount() {
+
+    }
+
+    render() {
         const {reminders, exercises} = this.props.userData;
+        // console.log(this.props.userData);
         let dayList = this.generateDayList(startDate, endDate);
-        this.setState({
-            ...this.state,
-            dayList: dayList
-        });
+        // this.setState({
+        //     ...this.state,
+        //     dayList: dayList
+        // });
         // build x axis
         const xAxisData = []
         for (let i = 0; i < dayList.length; i++) {
@@ -52,7 +61,6 @@ export class SubmitReminderChart extends Component {
             else if (remType[0] === "rem3")
                 reminderThreeSentDate[dayList.indexOf(this.mapTimestampToDate(timestamp, dayList))] = -1;
         });
-
         var itemStyle = {
             normal: {
             },
@@ -134,15 +142,6 @@ export class SubmitReminderChart extends Component {
             }
             this.option["series"].push(jsonObj);
         });
-
-        //console.log(this.option);
-    }
-
-    componentDidMount() {
-
-    }
-
-    render() {
         return (
             <div>
                 <ReactEcharts

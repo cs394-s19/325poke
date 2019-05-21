@@ -12,7 +12,7 @@ import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import withStyles from "@material-ui/core/styles/withStyles";
 
-import {ReminderTable, SubmitReminderChart} from '../../components';
+import {ReminderTable, SubmitReminderChart, SubmitReminderTable} from '../../components';
 //you should install react-google-charts through command "yarn add react-google-charts" or "npm i react-google-charts"
 
 // styles
@@ -428,7 +428,7 @@ class MainPage extends Component {
                         </form>
                     </Toolbar>
                 </AppBar>
-                {this.state.isLoaded ? <SubmitReminderChart userData={this.state.jsonData["authors"]["1340"]}/> : null}
+                {this.state.isLoaded ? <SubmitReminderTable userData={this.state.jsonData["authors"]}/> : null}
                 <ReminderTable/>
                 <br/><br/><br/>
                 <Chart className="Chart"

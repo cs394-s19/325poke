@@ -42,8 +42,7 @@ function forgetFutureSubmissions(submissionTime, currentTime) {
 }
 
 function mostRecentSubTime(author, currentTime) {
-    return _.max(_.values(_.mapValues(author.exercises, (o => forgetFutureSubmissions(o.submitted, currentTime)))));
-}
+    return _.max(_.values(_.map(author.submissions, (o => forgetFutureSubmissions(o.submitted, currentTime)))));}
 
 function getReminderBuckets(jsonData, currentTime) {
     // return an object with 3 lists of author ids corresponding to sent reminders
