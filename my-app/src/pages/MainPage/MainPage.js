@@ -5,9 +5,7 @@ import {Link} from 'react-router-dom';
 import './styles.css';
 import database from '../../firebase'
 import Chart from 'react-google-charts';
-import ReactTable from 'react-table'
 import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import withStyles from "@material-ui/core/styles/withStyles";
@@ -96,30 +94,6 @@ class MainPage extends Component {
     }
     mostRecentSubTime = (author, currentTime) => {
         return _.max(_.values(_.mapValues(author.exercises, (o => this.forgetFutureSubmissions(o.submitted, currentTime)))));
-    }
-
-    populateListofSlackers = (currentTime) => {
-        const slackers = this.getAnyReminders(currentTime);
-        return _.map(slackers, (slacker, index) => {
-            return (
-                <ListItem key={index}>
-                    <ListItemText
-                        primary={slacker[2] + " (" + slacker[3] + ")"}
-                        secondary={"No submissions for " + Math.floor(slacker[1] / 86400000) + " days"}
-                    />
-                    <Button id="show" component={Link} to={{
-                        pathname: "details",
-                        exercises: this.state.jsonData.authors[slacker[0]].exercises,
-                        student_id: slacker[0],
-                        student_name: slacker[2],
-                        currentTime: currentTime
-                    }}
-                            label="Show Details" variant="contained" color="primary">
-                        Show Details
-                    </Button>
-                </ListItem>
-            )
-        });
     }
 
     populateWeeklyList = () => {
@@ -256,7 +230,6 @@ class MainPage extends Component {
             var dayIndex = new Date(Number(timeStamp)).getDay()
             oneDayData[0] = (days[dayIndex])
             _.map(oneDayRem, (authors, bucket) => {
-                // console.log("bucket: " + authors)
                 if (bucket == 'rem1') {
                     oneDayData[1] = authors.length
                 } else if (bucket == 'rem2') {
@@ -269,6 +242,53 @@ class MainPage extends Component {
         })
         return resultData
     }
+    //give the index, get the name of day
+    getDay = (dayIndex) =>{
+        var dayName = '';
+        switch(dayIndex)
+        {
+            case 0:
+                dayName = 'Saturday';
+                break;
+            case 1:
+                dayName = 'Sunday';
+                break;
+            case 2:
+                dayName = 'Monday';
+                break;
+            case 3:
+                dayName = 'Tuesday';
+                break;
+            case 4:
+                dayName = 'Wednesday';
+                break;
+            case 5:
+                dayName = 'Thursday';
+                break;
+            case 6:
+                dayName = 'Friday';
+                break;
+        }
+        return dayName  ;
+    }
+
+    //give the index, get the name of day
+    getRemName = (currBucket) =>{
+        var remName = '';
+        switch(currBucket)
+        {
+            case 1:
+                remName = '1st'
+                break;
+            case 2:
+                remName = '2nd'
+                break;
+            case 3:
+                remName = '3rd'
+                break;
+        }
+        return remName;
+    }
 
     constructor(props) {
         super(props);
@@ -277,7 +297,7 @@ class MainPage extends Component {
             isLoaded: false,
             weekDict: this.generateWeekDict(dateArray),
             currWeek: 5,
-            currIndex: 1,
+            currIndex: 0,
             currBucket: 1,
         }
         this.chartEvents = [
@@ -375,29 +395,31 @@ class MainPage extends Component {
                 {this.state.isLoaded ? <SubmitReminderTable userData={this.state.jsonData["authors"]}/> : null}
                 <ReminderTable/>
                 <br/><br/><br/>
+                <h1>Here are the chart of reminder numbers for week{currWeek}:</h1>
                 <Chart className="Chart"
-                       width={'=500px'}
-                       height={'300px'}
+                       width={'=800px'}
+                       height={'400px'}
                        chartType="Bar"
                        loader={<div>Loading Chart</div>}
                        data={this.getDailyReminderByWeek(currWeek)}
                        chartEvents={this.chartEvents}
-                       options={{
-                           // Material design options
-                           chart: {
-                               title: 'Number of reminders',
-                               subtitle: 'Week ' + currWeek,
-                           },
-                       }}
-                       
+                    //    options={{
+                    //        // Material design options
+                    //        chart: {
+                    //            title: 'Number of reminders',
+                    //            subtitle: 'Week ' + currWeek,
+                    //        },
+                    //    }}
+                       align="center"
                     // For tests
                        rootProps={{'data-testid': '2'}}
                 />
 
                 <div className="bucket">
-                    <h1>Here are the reminders for this day:</h1>
+                    <h1>Here are the {this.getRemName(this.state.currBucket)} reminders on {this.getDay(this.state.currIndex)} :</h1>
                     <div>{this.state.isLoaded ? this.getRemindersByChart(this.state.currIndex, this.state.currBucket) : null}</div>
                 </div>
+
                 {/* <div className="reminderDetails">
                     <div className="fourday">
                         <h1>
@@ -460,6 +482,29 @@ class MainPage extends Component {
     //     })
     // }
 
+    // populateListofSlackers = (currentTime) => {
+    //     const slackers = this.getAnyReminders(currentTime);
+    //     return _.map(slackers, (slacker, index) => {
+    //         return (
+    //             <ListItem key={index}>
+    //                 <ListItemText
+    //                     primary={slacker[2] + " (" + slacker[3] + ")"}
+    //                     secondary={"No submissions for " + Math.floor(slacker[1] / 86400000) + " days"}
+    //                 />
+    //                 <Button id="show" component={Link} to={{
+    //                     pathname: "details",
+    //                     exercises: this.state.jsonData.authors[slacker[0]].exercises,
+    //                     student_id: slacker[0],
+    //                     student_name: slacker[2],
+    //                     currentTime: currentTime
+    //                 }}
+    //                         label="Show Details" variant="contained" color="primary">
+    //                     Show Details
+    //                 </Button>
+    //             </ListItem>
+    //         )
+    //     });
+    // }
 
 }
 
