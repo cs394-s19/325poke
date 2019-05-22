@@ -220,6 +220,7 @@ class MainPage extends Component {
         return resultData
     }
 
+    // for histogram
     getDailyReminderByWeek = (week) => {
         const weeklyReminders = this.listWeeklyReminders(this.state.weekDict[week].startDate + 1, this.state.weekDict[week].endDate)
         console.log(weeklyReminders);
@@ -242,7 +243,8 @@ class MainPage extends Component {
         })
         return resultData
     }
-    //give the index, get the name of day
+
+    //given the index, get the name of day
     getDay = (dayIndex) =>{
         var dayName = '';
         switch(dayIndex)
@@ -272,7 +274,7 @@ class MainPage extends Component {
         return dayName  ;
     }
 
-    //give the index, get the name of day
+    //given the index, get the name of day
     getRemName = (currBucket) =>{
         var remName = '';
         switch(currBucket)
