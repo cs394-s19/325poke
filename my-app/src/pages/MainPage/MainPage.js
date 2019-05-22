@@ -81,7 +81,6 @@ class MainPage extends Component {
                 slackers.push([authorId, timeDiff, submissionData.authors[authorId].name, submissionData.authors[authorId].email]);
             }
         }
-        //console.log("slackers: " + slackers);
         return slackers;
     }
 
@@ -113,7 +112,6 @@ class MainPage extends Component {
     // kind of like a snapshot of the students' progress at the current time
     // ensures we ignore the future submissions since we have that data already
     forgetFutureSubmissions = (submissionTime, currentTime) => {
-        // console.log(submissionTime);
         if (submissionTime > currentTime) {
             return startDate; // to calculate number of days without work at beginning of quarter
         } else {
@@ -126,7 +124,6 @@ class MainPage extends Component {
 
     populateListofSlackers = (currentTime) => {
         const slackers = this.getAnyReminders(currentTime);
-        //console.log(slackers);
         return _.map(slackers, (slacker, index) => {
             return (
                 <ListItem key={index}>
@@ -134,8 +131,6 @@ class MainPage extends Component {
                         primary={slacker[2] + " (" + slacker[3] + ")"}
                         secondary={"No submissions for " + Math.floor(slacker[1] / 86400000) + " days"}
                     />
-                    {/* A reminder should be sent to student <b><i>{slacker[2]}</i></b> (<i>{slacker[3]}</i>), because nothing has been submitted anything
-                    for {Math.floor(slacker[1] / 86400000)} days.&nbsp;&nbsp;&nbsp; */}
                     <Button id="show" component={Link} to={{
                         pathname: "details",
                         exercises: this.state.jsonData.authors[slacker[0]].exercises,
@@ -152,9 +147,7 @@ class MainPage extends Component {
     }
 
     populateWeeklyList = () => {
-        //console.log(this.state.jsonData.authors["1769"].exercises);
         return _.map(times, (weeklyDeadline, index) => {
-            // console.log(index);
             const newDate = new Date(weeklyDeadline)
             const month = newDate.getMonth() + 1
             const date = newDate.getDate()
@@ -213,32 +206,27 @@ class MainPage extends Component {
     }
 
 
-    displayWeeklyReminders = (weeklyReminders) => {
-        // return _.map(weeklyReminders, (reminder, index) => {
-        //   _.map(reminder, (listofAuthors, bucket) => {
-        //     return (<p>{bucket}</p>)
-        //   })
-        console.log(weeklyReminders);
-        return _.map(weeklyReminders, (reminder, index) => {
-            return (
-                <div>
-                    {/*<p>index: {index}</p>*/}
-                    {_.map(reminder, (listofAuthors, bucket) => {
-                        return (
-                            <div>
-                                <p>{bucket}</p>
-                                <p>{_.map(listofAuthors, (authorId, randomKey) => {
-                                    return (
-                                        <p>reminder sent to {authorId}</p>
-                                    )
-                                })}</p>
-                            </div>
-                        )
-                    })}
-                </div>
-            )
-        })
-    }
+    // displayWeeklyReminders = (weeklyReminders) => {
+    //     console.log(weeklyReminders);
+    //     return _.map(weeklyReminders, (reminder, index) => {
+    //         return (
+    //             <div>
+    //                 {_.map(reminder, (listofAuthors, bucket) => {
+    //                     return (
+    //                         <div>
+    //                             <p>{bucket}</p>
+    //                             <p>{_.map(listofAuthors, (authorId, randomKey) => {
+    //                                 return (
+    //                                     <p>reminder sent to {authorId}</p>
+    //                                 )
+    //                             })}</p>
+    //                         </div>
+    //                     )
+    //                 })}
+    //             </div>
+    //         )
+    //     })
+    // }
 
     displaySpecificReminders = (reminders) => {
         console.log(reminders);
@@ -249,7 +237,7 @@ class MainPage extends Component {
                         <div>
                             <p>{_.map(listofAuthors, (authorId, randomKey) => {
                                 return (
-                                    <p>reminder sent to {authorId}</p>
+                                    <p>reminder sent to {this.state.jsonData.authors[authorId].name} ({this.state.jsonData.authors[authorId].email})</p>
                                 )
                             })}</p>
                         </div>
@@ -383,10 +371,6 @@ class MainPage extends Component {
     };
 
     render() {
-        // Use these lines to see firebase data
-        // database.ref('/').once('value').then((snapshot) => {
-        //     console.log(snapshot.val());
-        // });
         const {classes} = this.props;
         const {currWeek, weekDict} = this.state;
         return (
@@ -396,9 +380,6 @@ class MainPage extends Component {
                         <span>Week</span> &nbsp;
                         <form autoComplete="off">
                             <FormControl>
-                                {/*<InputLabel shrink htmlFor='week-selector' style={{color: 'white'}}>*/}
-                                {/*Week*/}
-                                {/*</InputLabel>*/}
                                 <Select
                                     style={{color: 'white'}}
                                     disableUnderline={true}
@@ -451,7 +432,6 @@ class MainPage extends Component {
 
                 <div className="bucket">
                     <h1>Here are the reminders for this day:</h1>
-                    {/*<div>{this.getWeeklyReminders(weekDict[currWeek].startDate, weekDict[currWeek].endDate)}</div>*/}
                     <div>{this.state.isLoaded ? this.getRemindersByChart(this.state.currIndex, this.state.currBucket) : null}</div>
                 </div>
                 <div className="reminderDetails">
@@ -460,14 +440,12 @@ class MainPage extends Component {
                             The 4-day reminders:
                         </h1>
                         {this.state.isLoaded ? this.populateSpecificWeekList(currWeek) : null}
-                        {/* <h3>Week 11: Starting December 7, 2018</h3>
-                        {populateListofSlackers(times[10])} */}
                     </div>
-                    <div className="twoweek">
+                    {/* <div className="twoweek">
                         <h1>
                             The 2-week reminders:
                         </h1>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         );
