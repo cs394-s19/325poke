@@ -84,30 +84,6 @@ class MainPage extends Component {
         return slackers;
     }
 
-    // getReminderBuckets = (currentTime) => {
-    //     // return an object with 3 lists of author ids corresponding to sent reminders
-    //     const submissionData = this.state.jsonData;
-    //     const newReminders = {"rem1": [], "rem2": [], "rem3": [], "sentTime": currentTime};
-    //     let authorId;
-    //     for (authorId in submissionData.authors) {
-    //         const lastSubTime = this.mostRecentSubTime(submissionData.authors[authorId], currentTime);
-    //         const timeDiff = currentTime - lastSubTime;
-    //         if (timeDiff >= firstRemDays * 86400000 && timeDiff < (firstRemDays + 1) * 86400000) {
-    //             newReminders.rem1.push(authorId);
-    //         } else if (timeDiff >= secondRemDays * 86400000 && timeDiff < (secondRemDays + 1) * 86400000) {
-    //             newReminders.rem2.push(authorId);
-    //         } else if (timeDiff >= thirdRemDays * 86400000 && timeDiff < (thirdRemDays + 1) * 86400000) {
-    //             newReminders.rem3.push(authorId);
-    //         }
-    //     }
-    //     return newReminders;
-    // }
-    //
-    // generateRemindersForQuarter = (startDateTime, endDateTime) => {
-    //     const buckets = _.map(_.range(startDateTime, endDateTime + 1, 86400000), this.getReminderBuckets);
-    //     return _.mapValues(_.keyBy(buckets, o => o.sentTime), v => _.omit(v, 'sentTime'));
-    // }
-
     // function to ensure we only look at the previous submissions given a current time
     // kind of like a snapshot of the students' progress at the current time
     // ensures we ignore the future submissions since we have that data already
@@ -205,29 +181,6 @@ class MainPage extends Component {
         return this.displaySpecificReminders([weeklyReminders[index]["rem" + bucket]]);
     }
 
-
-    // displayWeeklyReminders = (weeklyReminders) => {
-    //     console.log(weeklyReminders);
-    //     return _.map(weeklyReminders, (reminder, index) => {
-    //         return (
-    //             <div>
-    //                 {_.map(reminder, (listofAuthors, bucket) => {
-    //                     return (
-    //                         <div>
-    //                             <p>{bucket}</p>
-    //                             <p>{_.map(listofAuthors, (authorId, randomKey) => {
-    //                                 return (
-    //                                     <p>reminder sent to {authorId}</p>
-    //                                 )
-    //                             })}</p>
-    //                         </div>
-    //                     )
-    //                 })}
-    //             </div>
-    //         )
-    //     })
-    // }
-
     displaySpecificReminders = (reminders) => {
         console.log(reminders);
         return (
@@ -237,7 +190,17 @@ class MainPage extends Component {
                         <div>
                             <p>{_.map(listofAuthors, (authorId, randomKey) => {
                                 return (
+                                    <div>
                                     <p>reminder sent to {this.state.jsonData.authors[authorId].name} ({this.state.jsonData.authors[authorId].email})</p>
+                                    <Button id="show" component={Link} to={{
+                                        pathname: "details",
+                                        exercises: this.state.jsonData.authors[authorId].exercises,
+                                        student_id: authorId,
+                                        student_name: this.state.jsonData.authors[authorId].name,
+                                    }} label="Show Details" variant="contained" color="primary">
+                                        Show Details
+                                    </Button>
+                                    </div>
                                 )
                             })}</p>
                         </div>
@@ -413,7 +376,7 @@ class MainPage extends Component {
                 <ReminderTable/>
                 <br/><br/><br/>
                 <Chart className="Chart"
-                       width={'500px'}
+                       width={'=500px'}
                        height={'300px'}
                        chartType="Bar"
                        loader={<div>Loading Chart</div>}
@@ -426,6 +389,7 @@ class MainPage extends Component {
                                subtitle: 'Week ' + currWeek,
                            },
                        }}
+                       
                     // For tests
                        rootProps={{'data-testid': '2'}}
                 />
@@ -434,22 +398,68 @@ class MainPage extends Component {
                     <h1>Here are the reminders for this day:</h1>
                     <div>{this.state.isLoaded ? this.getRemindersByChart(this.state.currIndex, this.state.currBucket) : null}</div>
                 </div>
-                <div className="reminderDetails">
+                {/* <div className="reminderDetails">
                     <div className="fourday">
                         <h1>
                             The 4-day reminders:
                         </h1>
                         {this.state.isLoaded ? this.populateSpecificWeekList(currWeek) : null}
                     </div>
-                    {/* <div className="twoweek">
+                    <div className="twoweek">
                         <h1>
                             The 2-week reminders:
                         </h1>
-                    </div> */}
-                </div>
+                    </div>
+                </div> */}
             </div>
         );
     }
+
+    // getReminderBuckets = (currentTime) => {
+    //     // return an object with 3 lists of author ids corresponding to sent reminders
+    //     const submissionData = this.state.jsonData;
+    //     const newReminders = {"rem1": [], "rem2": [], "rem3": [], "sentTime": currentTime};
+    //     let authorId;
+    //     for (authorId in submissionData.authors) {
+    //         const lastSubTime = this.mostRecentSubTime(submissionData.authors[authorId], currentTime);
+    //         const timeDiff = currentTime - lastSubTime;
+    //         if (timeDiff >= firstRemDays * 86400000 && timeDiff < (firstRemDays + 1) * 86400000) {
+    //             newReminders.rem1.push(authorId);
+    //         } else if (timeDiff >= secondRemDays * 86400000 && timeDiff < (secondRemDays + 1) * 86400000) {
+    //             newReminders.rem2.push(authorId);
+    //         } else if (timeDiff >= thirdRemDays * 86400000 && timeDiff < (thirdRemDays + 1) * 86400000) {
+    //             newReminders.rem3.push(authorId);
+    //         }
+    //     }
+    //     return newReminders;
+    // }
+    //
+    // generateRemindersForQuarter = (startDateTime, endDateTime) => {
+    //     const buckets = _.map(_.range(startDateTime, endDateTime + 1, 86400000), this.getReminderBuckets);
+    //     return _.mapValues(_.keyBy(buckets, o => o.sentTime), v => _.omit(v, 'sentTime'));
+    // }
+    // displayWeeklyReminders = (weeklyReminders) => {
+    //     console.log(weeklyReminders);
+    //     return _.map(weeklyReminders, (reminder, index) => {
+    //         return (
+    //             <div>
+    //                 {_.map(reminder, (listofAuthors, bucket) => {
+    //                     return (
+    //                         <div>
+    //                             <p>{bucket}</p>
+    //                             <p>{_.map(listofAuthors, (authorId, randomKey) => {
+    //                                 return (
+    //                                     <p>reminder sent to {authorId}</p>
+    //                                 )
+    //                             })}</p>
+    //                         </div>
+    //                     )
+    //                 })}
+    //             </div>
+    //         )
+    //     })
+    // }
+
 
 }
 
