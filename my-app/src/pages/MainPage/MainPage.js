@@ -10,7 +10,12 @@ import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import withStyles from "@material-ui/core/styles/withStyles";
 
-import {ReminderTable, SubmitReminderChart, SubmitReminderTable} from '../../components';
+import {
+  ReminderTable, 
+  SubmitReminderChart, 
+  SubmitReminderTable,
+  SummaryHistogram
+} from '../../components';
 //you should install react-google-charts through command "yarn add react-google-charts" or "npm i react-google-charts"
 
 // styles
@@ -242,6 +247,46 @@ class MainPage extends Component {
             resultData.push(oneDayData)
         })
         return resultData
+    }
+
+    // given the resultData [['Day', '1st', '2nd', '3rd'], ['Mon', 3, 5, 7], ['Tue', 3, 6, 2], ... [...]]
+    // and the week number
+    // return an array: ['Week 1', 5, 4, 3]
+    sumDailyToWeek = (dailyBreakdownData, currWeek) => {
+      // initialize a new data array to update and return
+      var resultData = ['Week' + toString(currWeek), 0, 0, 0]
+      // cut off the first item in the array since the first item is an array of axis title and bucket names
+      const cleanedDailyBreakdownData = dailyBreakdownData.pop() //TODO: check if there's a method for eliminating first element
+      // initialize a count of # of reminders in each bucket
+      var bucketOneCount = 0
+      var bucketTwoCount = 0
+      var bucketThreeCount = 0
+      // count up reminders over a week
+      _.map(cleanedDailyBreakdownData, (arr) => {
+        bucketOneCount += arr[1]
+        bucketTwoCount += arr[2]
+        bucketThreeCount += arr[3]
+      })
+      // update resultData to have the new bucket counts
+      resultData[1] = bucketOneCount
+      resultData[2] = bucketTwoCount
+      resultData[3] = bucketThreeCount
+
+      return resultData
+    }
+
+    // gets the data needed to produce a quarter overview of reminders sent with a weekly breakdown
+    getWeeklyReminderByQuarter = () => {
+      const weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+      // initialize a new data array to update and return
+      var resultData = [['Week', '1st', '2nd', '3rd']]
+      // need to call getDailyReminderByWeek with all weeks
+      _.map(weeks, (currWeek) => {
+        const dailyBreakdown = this.getDailyReminderByWeek(currWeek)
+        const oneWeekArray = this.sumDailyToWeek(dailyBreakdown)
+        resultData.concat([oneWeekArray]) //TODO: make sure this maintains the right structure
+      })
+      return resultData
     }
 
     //given the index, get the name of day
