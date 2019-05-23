@@ -276,17 +276,25 @@ class MainPage extends Component {
     }
 
     // gets the data needed to produce a quarter overview of reminders sent with a weekly breakdown
-    getWeeklyReminderByQuarter = () => {
-      const weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-      // initialize a new data array to update and return
-      var resultData = [['Week', '1st', '2nd', '3rd']]
-      // need to call getDailyReminderByWeek with all weeks
-      _.map(weeks, (currWeek) => {
-        const dailyBreakdown = this.getDailyReminderByWeek(currWeek)
-        const oneWeekArray = this.sumDailyToWeek(dailyBreakdown)
-        resultData.concat([oneWeekArray]) //TODO: make sure this maintains the right structure
-      })
-      return resultData
+    getHistogramData = (selectedWeek) => {
+      // if user selects the "All" view
+      if (selectedWeek == "All") {
+        console.log("at getWeeklyReminderByQuarter")
+        const weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        // initialize a new data array to update and return
+        var resultData = [['Week', '1st', '2nd', '3rd']]
+        // need to call getDailyReminderByWeek with all weeks
+        _.map(weeks, (currWeek) => {
+          const dailyBreakdown = this.getDailyReminderByWeek(currWeek)
+          const oneWeekArray = this.sumDailyToWeek(dailyBreakdown)
+          resultData.concat([oneWeekArray]) //TODO: make sure this maintains the right structure
+        })
+        return resultData
+      }
+      // otherwise, show the daily breakdown for a given week
+      else {
+        this.getDailyReminderByWeek(week)
+      }
     }
 
     //given the index, get the name of day
@@ -422,6 +430,7 @@ class MainPage extends Component {
                                         }
                                     }}
                                 >
+                                    <MenuItem value={0}>All</MenuItem>
                                     <MenuItem value={1}>1</MenuItem>
                                     <MenuItem value={2}>2</MenuItem>
                                     <MenuItem value={3}>3</MenuItem>
@@ -443,7 +452,11 @@ class MainPage extends Component {
                 <ReminderTable/>
                 <br/><br/><br/>
                 <h1>Here are the chart of reminder numbers for week{currWeek}:</h1>
-                <Chart className="Chart"
+                <SummaryHistogram 
+                  week={currWeek}
+                  data={}
+                />
+                {/* <Chart className="Chart"
                        width={'=800px'}
                        height={'400px'}
                        chartType="Bar"
@@ -460,7 +473,7 @@ class MainPage extends Component {
                        align="center"
                     // For tests
                        rootProps={{'data-testid': '2'}}
-                />
+                /> */}
 
                 <div className="bucket">
                     <h1>Here are the {this.getRemName(this.state.currBucket)} reminders on {this.getDay(this.state.currIndex)} :</h1>
