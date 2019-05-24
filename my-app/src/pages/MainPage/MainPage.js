@@ -450,10 +450,7 @@ class MainPage extends Component {
                         </form>
                     </Toolbar>
                 </AppBar>
-                {this.state.isLoaded ? <SubmitReminderTable userData={this.state.jsonData["authors"]}/> : null}
-                <ReminderTable/>
-                <br/><br/><br/>
-                <h1>Number of Reminders Sent by Buckets: Week {currWeek}</h1>
+                <h1>Summary of Reminders Sent by Buckets</h1>
                 {/* <SummaryHistogram 
                   week={currWeek}
                   data={this.getHistogramData(currWeek)}
@@ -477,8 +474,15 @@ class MainPage extends Component {
                        rootProps={{'data-testid': '2'}}
                 />
 
+                <br/><br/><br/><br/><br/>
+                <h1>Student Summaries</h1>
+                {this.state.isLoaded ? <SubmitReminderTable userData={this.state.jsonData["authors"]}/> : null}
+                <ReminderTable/>
+                <br/><br/><br/>
+    
                 <div className="bucket">
-                    <h1>Here are the {this.getRemName(this.state.currBucket)} reminders on {this.getDay(this.state.currIndex)} :</h1>
+                    {/* commented out because of week index starting at week 0 for the "week all" view for the histogram. causes errors. but we can bring this back if Riesbeck wants */}
+                    {/* <h1>Here are the {this.getRemName(this.state.currBucket)} reminders on {this.getDay(this.state.currIndex)} :</h1> */}
                     {/* <div>{this.state.isLoaded ? this.getRemindersByChart(this.state.currIndex, this.state.currBucket) : null}</div> */}
                 </div>
 
