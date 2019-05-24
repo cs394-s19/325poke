@@ -1,16 +1,34 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Chart from 'react-google-charts';
 
 // takes in the week number (from parent) and the data and generates the summary histogram
 function SummaryHistogram({ week, data }) {
+   const [chartEvents, setChartEvents] = useState(
+      [
+         {
+             eventName: 'select',
+             callback: ({ chartWrapper }) => {
+                 const chart = chartWrapper.getChart()
+                 const selection = chart.getSelection()
+                 this.setState({
+                     ...this.state,
+                     currIndex: selection[0].row,
+                     currBucket: selection[0].column,
+                 })
+             }
+         },
+     ]
+   )
+   
+   console.log("data: " + data)
    return(
       <Chart className="Chart"
                        width={'=800px'}
                        height={'400px'}
                        chartType="Bar"
                        loader={<div>Loading Chart</div>}
-                       data={this.getDailyReminderByWeek(currWeek)}
-                       chartEvents={this.chartEvents}
+                       data={data}
+                       chartEvents={chartEvents}
                     //    options={{
                     //        // Material design options
                     //        chart: {
