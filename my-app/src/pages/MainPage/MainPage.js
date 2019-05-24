@@ -10,7 +10,12 @@ import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import withStyles from "@material-ui/core/styles/withStyles";
 
-import {ReminderTable, SubmitReminderChart, SubmitReminderTable} from '../../components';
+import {
+  ReminderTable, 
+  SubmitReminderChart, 
+  SubmitReminderTable,
+  SummaryHistogram
+} from '../../components';
 //you should install react-google-charts through command "yarn add react-google-charts" or "npm i react-google-charts"
 
 // styles
@@ -192,7 +197,7 @@ class MainPage extends Component {
                 return false
             }
         })
-        console.log("listweeklyreminders timestamp: " + Object.keys(weeklyReminders))
+        console.log("look here: " + Object.keys(weeklyReminders))
         return weeklyReminders
     }
     // get daily reminders for histogram
@@ -220,9 +225,10 @@ class MainPage extends Component {
         return resultData
     }
 
+    // for histogram
     getDailyReminderByWeek = (week) => {
         const weeklyReminders = this.listWeeklyReminders(this.state.weekDict[week].startDate + 1, this.state.weekDict[week].endDate)
-        console.log(weeklyReminders);
+        console.log("these are the weekly reminders: " + Object.values(weeklyReminders));
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         var resultData = [['Day', '1st', '2nd', '3rd']]
         _.map(weeklyReminders, (oneDayRem, timeStamp) => {
@@ -240,9 +246,60 @@ class MainPage extends Component {
             })
             resultData.push(oneDayData)
         })
+        console.log("result data: " + resultData)
         return resultData
     }
-    //give the index, get the name of day
+
+    // given the resultData [['Day', '1st', '2nd', '3rd'], ['Mon', 3, 5, 7], ['Tue', 3, 6, 2], ... [...]]
+    // and the week number
+    // return an array: ['Week 1', 5, 4, 3]
+    sumDailyToWeek = (dailyBreakdownData, currWeek) => {
+      // initialize a new data array to update and return
+      var resultData = ['Week ' + currWeek, 0, 0, 0]
+      // cut off the first item in the array since the first item is an array of axis title and bucket names
+      dailyBreakdownData.shift() //.shift() pops the first element off of the array
+      // initialize a count of # of reminders in each bucket
+      var bucketOneCount = 0
+      var bucketTwoCount = 0
+      var bucketThreeCount = 0
+      // count up reminders over a week
+      _.map(dailyBreakdownData, (arr) => {
+        bucketOneCount += arr[1]
+        bucketTwoCount += arr[2]
+        bucketThreeCount += arr[3]
+      })
+      // update resultData to have the new bucket counts
+      resultData[1] = bucketOneCount
+      resultData[2] = bucketTwoCount
+      resultData[3] = bucketThreeCount
+      return resultData
+    }
+
+    // gets the data needed to produce a quarter overview of reminders sent with a weekly breakdown
+    getHistogramData = (selectedWeek) => {
+      // if user selects the "All" view
+      if (selectedWeek == 0) {
+        console.log("at getWeeklyReminderByQuarter")
+        const weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        // initialize a new data array to update and return
+        var resultData = [['Week', '1st', '2nd', '3rd']]
+        // need to call getDailyReminderByWeek with all weeks
+        _.map(weeks, (currWeek) => {
+          const dailyBreakdown = this.getDailyReminderByWeek(currWeek)
+          const oneWeekArray = this.sumDailyToWeek(dailyBreakdown, currWeek)
+          console.log("oneWeekArray: " + oneWeekArray)
+          resultData.push(oneWeekArray) //TODO: make sure this maintains the right structure
+        })
+        console.log("HERE: " + resultData)
+        return resultData
+      }
+      // otherwise, show the daily breakdown for a given week
+      else {
+        return this.getDailyReminderByWeek(selectedWeek)
+      }
+    }
+
+    //given the index, get the name of day
     getDay = (dayIndex) =>{
         var dayName = '';
         switch(dayIndex)
@@ -272,7 +329,7 @@ class MainPage extends Component {
         return dayName  ;
     }
 
-    //give the index, get the name of day
+    //given the index, get the name of day
     getRemName = (currBucket) =>{
         var remName = '';
         switch(currBucket)
@@ -296,7 +353,7 @@ class MainPage extends Component {
             jsonData: {},
             isLoaded: false,
             weekDict: this.generateWeekDict(dateArray),
-            currWeek: 5,
+            currWeek: 0,
             currIndex: 0,
             currBucket: 1,
         }
@@ -375,6 +432,7 @@ class MainPage extends Component {
                                         }
                                     }}
                                 >
+                                    <MenuItem value={0}>All</MenuItem>
                                     <MenuItem value={1}>1</MenuItem>
                                     <MenuItem value={2}>2</MenuItem>
                                     <MenuItem value={3}>3</MenuItem>
@@ -392,16 +450,17 @@ class MainPage extends Component {
                         </form>
                     </Toolbar>
                 </AppBar>
-                {this.state.isLoaded ? <SubmitReminderTable userData={this.state.jsonData["authors"]}/> : null}
-                <ReminderTable/>
-                <br/><br/><br/>
-                <h1>Here are the chart of reminder numbers for week{currWeek}:</h1>
+                <h1>Summary of Reminders Sent by Buckets</h1>
+                {/* <SummaryHistogram 
+                  week={currWeek}
+                  data={this.getHistogramData(currWeek)}
+                /> */}
                 <Chart className="Chart"
                        width={'=800px'}
                        height={'400px'}
                        chartType="Bar"
                        loader={<div>Loading Chart</div>}
-                       data={this.getDailyReminderByWeek(currWeek)}
+                       data={this.getHistogramData(currWeek)}
                        chartEvents={this.chartEvents}
                     //    options={{
                     //        // Material design options
@@ -415,9 +474,16 @@ class MainPage extends Component {
                        rootProps={{'data-testid': '2'}}
                 />
 
+                <br/><br/><br/><br/><br/>
+                <h1>Student Summaries</h1>
+                {this.state.isLoaded ? <SubmitReminderTable userData={this.state.jsonData["authors"]}/> : null}
+                <ReminderTable/>
+                <br/><br/><br/>
+    
                 <div className="bucket">
-                    <h1>Here are the {this.getRemName(this.state.currBucket)} reminders on {this.getDay(this.state.currIndex)} :</h1>
-                    <div>{this.state.isLoaded ? this.getRemindersByChart(this.state.currIndex, this.state.currBucket) : null}</div>
+                    {/* commented out because of week index starting at week 0 for the "week all" view for the histogram. causes errors. but we can bring this back if Riesbeck wants */}
+                    {/* <h1>Here are the {this.getRemName(this.state.currBucket)} reminders on {this.getDay(this.state.currIndex)} :</h1> */}
+                    {/* <div>{this.state.isLoaded ? this.getRemindersByChart(this.state.currIndex, this.state.currBucket) : null}</div> */}
                 </div>
 
                 {/* <div className="reminderDetails">
