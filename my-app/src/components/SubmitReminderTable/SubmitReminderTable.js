@@ -69,20 +69,6 @@ class SubmitReminderTable extends Component {
                     defaultPageSize={10}
                     className="-striped -highlight"
                     noDataText="Oh Noes!"
-                    defaultSorted={[
-                        {
-                            id: "reminder3",
-                            desc: true
-                        },
-                        {
-                            id: "reminder2",
-                            desc: true
-                        },
-                        {
-                            id: "reminder1",
-                            desc: true
-                        },
-                    ]}
                 />
             </div>
         );
