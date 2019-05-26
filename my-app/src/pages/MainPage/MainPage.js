@@ -29,8 +29,17 @@ const styles = {
     },
     arrowColor: {
         fill: 'white'
+    },
+    dashboard_title: {
+        color: 'green',
+        fontSize: 50,
+        backgroundColor: 'red',
+        textalign: 'center',
+    },
+    week_label: {
+        marginRight: 100,
     }
-}
+};
 
 const numDays = 4;
 const firstRemDays = 4;
@@ -417,11 +426,22 @@ class MainPage extends Component {
             <div className="Main">
                 <AppBar position="static">
                     <Toolbar>
-                        <span>Week</span> &nbsp;
+
+                        {/*<span style={styles.dashboard_title}>*/}
+                        {/*    325 Stuff*/}
+                        {/*</span>*/}
+
+                        <Typography variant="h6" className={{flexGrow:1}} >
+                            <span style={{color:"white", fontSize:30}}> 325 Dashboard </span>
+                        </Typography>
+
+                        <span style={{flexGrow:1}}></span>
+
+                        <span>Week:</span> &nbsp;
                         <form autoComplete="off">
                             <FormControl>
                                 <Select
-                                    style={{color: 'white'}}
+                                    style={{color: 'white', marginTop: 2}}
                                     disableUnderline={true}
                                     value={this.state.currWeek}
                                     onChange={this.handleWeekChange}
