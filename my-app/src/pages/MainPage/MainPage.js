@@ -347,9 +347,12 @@ class MainPage extends Component {
         return remName;
     }
 
-    showTitle = () =>{
+    showDetails = () =>{
         return (
+            <div>
             <h1>Here are the {this.getRemName(this.state.currBucket)} reminders on {this.getDay(this.state.currIndex)} :</h1>
+            <div>{this.getRemindersByChart(this.state.currIndex, this.state.currBucket)}</div>
+            </div>
         )
     }
 
@@ -483,8 +486,7 @@ class MainPage extends Component {
 
                 <div className="bucket">
                     {/* commented out because of week index starting at week 0 for the "week all" view for the histogram. causes errors. but we can bring this back if Riesbeck wants */}
-                    <div>{(this.state.isLoaded && this.state.currWeek !=  0) ? this.showTitle(): null}</div>
-                    <div>{(this.state.isLoaded && this.state.currWeek !=  0) ? this.getRemindersByChart(this.state.currIndex, this.state.currBucket) : null}</div>
+                    <div>{(this.state.isLoaded && (this.state.currWeek !=  0  && this.state.currWeek != 1)) ? this.showDetails(): null}</div>
                 </div>
 
                 <br/><br/><br/><br/><br/>
