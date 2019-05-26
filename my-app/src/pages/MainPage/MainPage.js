@@ -148,7 +148,7 @@ class MainPage extends Component {
                 return false
             }
         })
-        console.log(weeklyReminders)
+        // console.log(weeklyReminders)
         // return weeklyReminders
         return this.displayWeeklyReminders(weeklyReminders)
     }
@@ -164,13 +164,13 @@ class MainPage extends Component {
                 return false
             }
         })
-        console.log([weeklyReminders[index - 1]]);
+        // console.log([weeklyReminders[index - 1]]);
         // return weeklyReminders
         return this.displaySpecificReminders([weeklyReminders[index]["rem" + bucket]]);
     }
 
     displaySpecificReminders = (reminders) => {
-        console.log(reminders);
+        // console.log(reminders);
         return (
             <div>
                 {_.map(reminders, (listofAuthors, bucket) => {
@@ -206,7 +206,7 @@ class MainPage extends Component {
                 return false
             }
         })
-        console.log("look here: " + Object.keys(weeklyReminders))
+        // console.log("look here: " + Object.keys(weeklyReminders))
         return weeklyReminders
     }
     // get daily reminders for histogram
@@ -230,14 +230,14 @@ class MainPage extends Component {
             })
             resultData.push(oneDayData)
         })
-        console.log("result: " + resultData)
+        // console.log("result: " + resultData)
         return resultData
     }
 
     // for histogram
     getDailyReminderByWeek = (week) => {
         const weeklyReminders = this.listWeeklyReminders(this.state.weekDict[week].startDate + 1, this.state.weekDict[week].endDate)
-        console.log("these are the weekly reminders: " + Object.values(weeklyReminders));
+        // console.log("these are the weekly reminders: " + Object.values(weeklyReminders));
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         var resultData = [['Day', '1st', '2nd', '3rd']]
         _.map(weeklyReminders, (oneDayRem, timeStamp) => {
@@ -255,7 +255,7 @@ class MainPage extends Component {
             })
             resultData.push(oneDayData)
         })
-        console.log("result data: " + resultData)
+        // console.log("result data: " + resultData)
         return resultData
     }
 
@@ -288,7 +288,7 @@ class MainPage extends Component {
     getHistogramData = (selectedWeek) => {
       // if user selects the "All" view
       if (selectedWeek == 0) {
-        console.log("at getWeeklyReminderByQuarter")
+        // console.log("at getWeeklyReminderByQuarter")
         const weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
         // initialize a new data array to update and return
         var resultData = [['Week', '1st', '2nd', '3rd']]
@@ -296,10 +296,10 @@ class MainPage extends Component {
         _.map(weeks, (currWeek) => {
           const dailyBreakdown = this.getDailyReminderByWeek(currWeek)
           const oneWeekArray = this.sumDailyToWeek(dailyBreakdown, currWeek)
-          console.log("oneWeekArray: " + oneWeekArray)
+        //   console.log("oneWeekArray: " + oneWeekArray)
           resultData.push(oneWeekArray) //TODO: make sure this maintains the right structure
         })
-        console.log("HERE: " + resultData)
+        // console.log("HERE: " + resultData)
         return resultData
       }
       // otherwise, show the daily breakdown for a given week
@@ -356,6 +356,15 @@ class MainPage extends Component {
         return remName;
     }
 
+    showDetails = () =>{
+        return (
+            <div>
+            <h1>Here are the {this.getRemName(this.state.currBucket)} reminders on {this.getDay(this.state.currIndex)} :</h1>
+            <div>{this.getRemindersByChart(this.state.currIndex, this.state.currBucket)}</div>
+            </div>
+        )
+    }
+
     constructor(props) {
         super(props);
         this.state = {
@@ -404,7 +413,7 @@ class MainPage extends Component {
                 isLoaded: true,
             });
 
-            console.log(this.state.weekDict);
+            // console.log(this.state.weekDict);
             //
             // The code below is now moved to firebase.js(for test) and functions/index.js (real use)
             //
@@ -482,6 +491,7 @@ class MainPage extends Component {
                        loader={<div>Loading Chart</div>}
                        data={this.getHistogramData(currWeek)}
                        chartEvents={this.chartEvents}
+                       align="center"
                     //    options={{
                     //        // Material design options
                     //        chart: {
@@ -489,22 +499,19 @@ class MainPage extends Component {
                     //            subtitle: 'Week ' + currWeek,
                     //        },
                     //    }}
-                       align="center"
+
                     // For tests
                        rootProps={{'data-testid': '2'}}
                 />
 
-                <br/><br/><br/><br/><br/>
-                <h1>Student Summaries</h1>
-                {this.state.isLoaded ? <SubmitReminderTable userData={this.state.jsonData["authors"]}/> : null}
-                <ReminderTable/>
-                <br/><br/><br/>
-    
                 <div className="bucket">
                     {/* commented out because of week index starting at week 0 for the "week all" view for the histogram. causes errors. but we can bring this back if Riesbeck wants */}
-                    {/* <h1>Here are the {this.getRemName(this.state.currBucket)} reminders on {this.getDay(this.state.currIndex)} :</h1> */}
-                    {/* <div>{this.state.isLoaded ? this.getRemindersByChart(this.state.currIndex, this.state.currBucket) : null}</div> */}
+                    <div>{(this.state.isLoaded && (this.state.currWeek !=  0  && this.state.currWeek != 1)) ? this.showDetails(): null}</div>
                 </div>
+
+                <br/><br/><br/><br/><br/>
+                <h1>Student Summaries</h1>
+                {this.state.isLoaded ? <SubmitReminderTable userData={this.state.jsonData["authors"]} /> : null}
 
                 {/* <div className="reminderDetails">
                     <div className="fourday">
