@@ -61,9 +61,18 @@ export class SubmitReminderChart extends Component {
             else if (remType[0] === "rem3")
                 reminderThreeSentDate[dayList.indexOf(this.mapTimestampToDate(timestamp, dayList))] = -1;
         });
-        var itemStyle = {
-            normal: {
-            },
+        var itemStyleFirstSubmission = {
+            color: "#4c9447",
+            emphasis: {
+                barBorderWidth: 1,
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowOffsetY: 0,
+                shadowColor: 'rgba(0,0,0,0.5)'
+            }
+        };
+        var itemStyleResubmission = {
+            color: "#8DC679",
             emphasis: {
                 barBorderWidth: 1,
                 shadowBlur: 10,
@@ -83,13 +92,15 @@ export class SubmitReminderChart extends Component {
             tooltip: {},
             xAxis: {
                 data: xAxisData,
-                name: 'X Axis',
+                name: 'Date  ',
+                inverse: true,
                 silent: false,
                 axisLine: {onZero: true},
                 splitLine: {show: false},
                 splitArea: {show: false}
             },
             yAxis: {
+                name: 'Number of Submissions',
                 inverse: false,
                 splitArea: {show: false}
             },
@@ -101,47 +112,73 @@ export class SubmitReminderChart extends Component {
                     name: '4-day reminder',
                     type: 'bar',
                     stack: 'one',
-                    itemStyle: itemStyle,
+                    itemStyle: {
+                        color: '#5086EC'
+                    },
                     data: reminderOneSentDate
                 },
                 {
                     name: '7-day reminder',
                     type: 'bar',
                     stack: 'one',
-                    itemStyle: itemStyle,
+                    itemStyle: {
+                        color: '#EBB53E'
+                    },
                     data: reminderTwoSentDate
                 },
                 {
                     name: '10-day reminder',
                     type: 'bar',
                     stack: 'one',
-                    itemStyle: itemStyle,
+                    itemStyle: {
+                    color: '#CB4F40'
+                },
                     data: reminderThreeSentDate
                 }
             ]
         };
 
+
         // build submission bar
         _.forEach(exercises, (detail, exid) => {
-
+            let firstSubmissionList = [];
             let tempData = [];
-            _.forEach(detail.submit_hist, (hist) => {
+            _.forEach(detail.submit_hist, (hist, index) => {
+
                 let tempDate = this.mapTimestampToDate(hist.submitted, dayList);
+                if (index === 0) {
+                    if (firstSubmissionList.indexOf(tempDate) !== -1) {
+                        firstSubmissionList[dayList.indexOf(tempDate)] = firstSubmissionList[dayList.indexOf(tempDate)] + 1;
+                    } else {
+                        firstSubmissionList[dayList.indexOf(tempDate)] = 1;
+                    }
+                    return;
+                }
                 if (tempData.indexOf(tempDate) !== -1) {
                     tempData[dayList.indexOf(tempDate)] = tempData[dayList.indexOf(tempDate)] + 1;
                 } else {
                     tempData[dayList.indexOf(tempDate)] = 1;
                 }
             });
-            let jsonObj = {
+            let jsonObjFirstSubmission = {
                 name: exid,
                 type: 'bar',
                 stack: 'one',
-                itemStyle: itemStyle,
+                itemStyle: itemStyleFirstSubmission,
+                data: firstSubmissionList
+            }
+            let jsonObjResubmission = {
+                name: exid,
+                type: 'bar',
+                stack: 'one',
+                itemStyle: itemStyleResubmission,
                 data: tempData
             }
-            this.option["series"].push(jsonObj);
+            this.option["series"].push(jsonObjResubmission);
+            this.option["series"].push(jsonObjFirstSubmission);
         });
+
+        console.log(this.option);
         return (
             <div>
                 <ReactEcharts

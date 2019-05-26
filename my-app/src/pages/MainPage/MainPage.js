@@ -347,6 +347,15 @@ class MainPage extends Component {
         return remName;
     }
 
+    showDetails = () =>{
+        return (
+            <div>
+            <h1>Here are the {this.getRemName(this.state.currBucket)} reminders on {this.getDay(this.state.currIndex)} :</h1>
+            <div>{this.getRemindersByChart(this.state.currIndex, this.state.currBucket)}</div>
+            </div>
+        )
+    }
+
     constructor(props) {
         super(props);
         this.state = {
@@ -462,6 +471,7 @@ class MainPage extends Component {
                        loader={<div>Loading Chart</div>}
                        data={this.getHistogramData(currWeek)}
                        chartEvents={this.chartEvents}
+                       align="center"
                     //    options={{
                     //        // Material design options
                     //        chart: {
@@ -469,20 +479,19 @@ class MainPage extends Component {
                     //            subtitle: 'Week ' + currWeek,
                     //        },
                     //    }}
-                       align="center"
+
                     // For tests
                        rootProps={{'data-testid': '2'}}
                 />
 
+                <div className="bucket">
+                    {/* commented out because of week index starting at week 0 for the "week all" view for the histogram. causes errors. but we can bring this back if Riesbeck wants */}
+                    <div>{(this.state.isLoaded && (this.state.currWeek !=  0  && this.state.currWeek != 1)) ? this.showDetails(): null}</div>
+                </div>
+
                 <br/><br/><br/><br/><br/>
                 <h1>Student Summaries</h1>
                 {this.state.isLoaded ? <SubmitReminderTable userData={this.state.jsonData["authors"]} /> : null}
-    
-                <div className="bucket">
-                    {/* commented out because of week index starting at week 0 for the "week all" view for the histogram. causes errors. but we can bring this back if Riesbeck wants */}
-                    {/* <h1>Here are the {this.getRemName(this.state.currBucket)} reminders on {this.getDay(this.state.currIndex)} :</h1> */}
-                    {/* <div>{this.state.isLoaded ? this.getRemindersByChart(this.state.currIndex, this.state.currBucket) : null}</div> */}
-                </div>
 
                 {/* <div className="reminderDetails">
                     <div className="fourday">

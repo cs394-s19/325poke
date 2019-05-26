@@ -92,6 +92,7 @@ class SubmitReminderTable extends Component {
                             desc: true
                         }
                     ]}
+
                 />
             </div>
         );
