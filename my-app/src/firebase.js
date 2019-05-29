@@ -15,7 +15,7 @@ let database = firebase.database();
 
 const startDate = new Date('September 27, 2018 08:00:00').getTime()
 const endDate = new Date('December 14, 2018 08:00:00').getTime()
-const numDays = 4;
+// const numDays = 4;
 const firstRemDays = 4;
 const secondRemDays = 7;
 const thirdRemDays = 10;
@@ -31,7 +31,7 @@ function fetchJson() {
 // fetch json and use it to update the database
 function updateSubmissionInDatabase() {
     // query database
-    let ref = database.ref('/').once('value').then((snapshot) => {
+    database.ref('/').once('value').then((snapshot) => {
         // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
         let newJson = updateJson(snapshot.val(), fetchJson());
         console.log(newJson);

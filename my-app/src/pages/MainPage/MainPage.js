@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import _ from 'lodash';
-import {Button, List, ListItem, ListItemText, AppBar, Toolbar, Typography, IconButton} from '@material-ui/core';
+import {Button, List, AppBar, Toolbar, Typography} from '@material-ui/core';
 import {Link} from 'react-router-dom';
 import './styles.css';
 import database from '../../firebase'
@@ -11,10 +11,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import withStyles from "@material-ui/core/styles/withStyles";
 
 import {
-  ReminderTable, 
-  SubmitReminderChart, 
   SubmitReminderTable,
-  SummaryHistogram
 } from '../../components';
 //you should install react-google-charts through command "yarn add react-google-charts" or "npm i react-google-charts"
 
@@ -42,9 +39,9 @@ const styles = {
 };
 
 const numDays = 4;
-const firstRemDays = 4;
-const secondRemDays = 7;
-const thirdRemDays = 10;
+// const firstRemDays = 4;
+// const secondRemDays = 7;
+// const thirdRemDays = 10;
 
 // class start date = Thursday, September 27th
 const startDate = new Date('September 27, 2018 08:00:00').getTime()
@@ -220,11 +217,11 @@ class MainPage extends Component {
             oneDayData[0] = (days[dayIndex])
             _.map(oneDayRem, (authors, bucket) => {
                 // console.log("bucket: " + authors)
-                if (bucket == 'rem1') {
+                if (bucket === 'rem1') {
                     oneDayData[1] = authors.length
-                } else if (bucket == 'rem2') {
+                } else if (bucket === 'rem2') {
                     oneDayData[2] = authors.length
-                } else if (bucket == 'rem3') {
+                } else if (bucket === 'rem3') {
                     oneDayData[3] = authors.length
                 }
             })
@@ -245,11 +242,11 @@ class MainPage extends Component {
             var dayIndex = new Date(Number(timeStamp)).getDay()
             oneDayData[0] = (days[dayIndex])
             _.map(oneDayRem, (authors, bucket) => {
-                if (bucket == 'rem1') {
+                if (bucket === 'rem1') {
                     oneDayData[1] = authors.length
-                } else if (bucket == 'rem2') {
+                } else if (bucket === 'rem2') {
                     oneDayData[2] = authors.length
-                } else if (bucket == 'rem3') {
+                } else if (bucket === 'rem3') {
                     oneDayData[3] = authors.length
                 }
             })
@@ -287,7 +284,7 @@ class MainPage extends Component {
     // gets the data needed to produce a quarter overview of reminders sent with a weekly breakdown
     getHistogramData = (selectedWeek) => {
       // if user selects the "All" view
-      if (selectedWeek == 0) {
+      if (selectedWeek === 0) {
         // console.log("at getWeeklyReminderByQuarter")
         const weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
         // initialize a new data array to update and return
@@ -334,6 +331,8 @@ class MainPage extends Component {
             case 6:
                 dayName = 'Friday';
                 break;
+            default:
+                break;
         }
         return dayName  ;
     }
@@ -351,6 +350,8 @@ class MainPage extends Component {
                 break;
             case 3:
                 remName = '3rd'
+                break;
+            default:
                 break;
         }
         return remName;
@@ -430,7 +431,7 @@ class MainPage extends Component {
 
     render() {
         const {classes} = this.props;
-        const {currWeek, weekDict} = this.state;
+        const {currWeek} = this.state;
         return (
             <div className="Main">
                 <AppBar position="static">
@@ -440,11 +441,11 @@ class MainPage extends Component {
                         {/*    325 Stuff*/}
                         {/*</span>*/}
 
-                        <Typography variant="h6" className={{flexGrow:1}} >
+                        <Typography variant="h6">
                             <span style={{color:"white", fontSize:30}}> 325 Dashboard </span>
                         </Typography>
 
-                        <span style={{flexGrow:1}}></span>
+                        <span style={{flexGrow:1}}>&nbsp;</span>
 
                         <span>Week:</span> &nbsp;
                         <form autoComplete="off">
@@ -506,7 +507,7 @@ class MainPage extends Component {
 
                 <div className="bucket">
                     {/* commented out because of week index starting at week 0 for the "week all" view for the histogram. causes errors. but we can bring this back if Riesbeck wants */}
-                    <div>{(this.state.isLoaded && (this.state.currWeek !=  0  && this.state.currWeek != 1)) ? this.showDetails(): null}</div>
+                    <div>{(this.state.isLoaded && (this.state.currWeek !==  0  && this.state.currWeek !== 1)) ? this.showDetails(): null}</div>
                 </div>
 
                 <br/><br/><br/><br/><br/>
