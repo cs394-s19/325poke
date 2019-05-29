@@ -99,7 +99,7 @@ class SubmitReminderTable extends Component {
             //     sev += bucket_sum * Math.pow(0.9, (endDate - time - 3600000) / 86400000);
             // });
             let tmpObj = {
-                name: authorID,
+                name: details.name,
                 email: details.email,
                 authorID: authorID,
                 severity: sev
@@ -114,18 +114,18 @@ class SubmitReminderTable extends Component {
             {
                 Header: 'Student Info',
                 columns: [{
-                    width: Math.round(window.innerWidth * 0.15),
+                    width: Math.round(window.innerWidth * 0.13),
                     Header: 'Name',
                     accessor: 'name',
                     // Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
                 }, {
-                    width: Math.round(window.innerWidth * 0.15),
+                    width: Math.round(window.innerWidth * 0.16),
                     Header: 'Email',
                     accessor: 'email',
                     // Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
                 },
                     {
-                        width: Math.round(window.innerWidth * 0.05),
+                        width: Math.round(window.innerWidth * 0.06),
                         Header: 'Severity',
                         accessor: 'severity',
                         // Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
