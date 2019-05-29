@@ -30,12 +30,6 @@ const styles = {
     arrowColor: {
         fill: 'white'
     },
-    dashboard_title: {
-        color: 'green',
-        fontSize: 50,
-        backgroundColor: 'red',
-        textalign: 'center',
-    },
     week_label: {
         marginRight: 100,
     }
@@ -436,12 +430,8 @@ class MainPage extends Component {
                 <AppBar position="static">
                     <Toolbar>
 
-                        {/*<span style={styles.dashboard_title}>*/}
-                        {/*    325 Stuff*/}
-                        {/*</span>*/}
-
                         <Typography variant="h6" className={{flexGrow:1}} >
-                            <span style={{color:"white", fontSize:30}}> 325 Dashboard </span>
+                            <span style={{color:"white", fontSize:30}}> CS 325 Class Status </span>
                         </Typography>
 
                         <span style={{flexGrow:1}}></span>
