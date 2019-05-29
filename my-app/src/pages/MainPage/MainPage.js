@@ -1,22 +1,15 @@
 import React, {Component} from 'react';
 import _ from 'lodash';
-import {Button, List, ListItem, ListItemText, AppBar, Toolbar, Typography, IconButton} from '@material-ui/core';
+import { AppBar, Button, FormControl, List, MenuItem, Select, Toolbar, Typography, withStyles } from '@material-ui/core';
 import {Link} from 'react-router-dom';
 import './styles.css';
 import database from '../../firebase'
 import Chart from 'react-google-charts';
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
-import withStyles from "@material-ui/core/styles/withStyles";
 
 import {
-  ReminderTable, 
   SubmitReminderChart, 
   SubmitReminderTable,
-  SummaryHistogram
 } from '../../components';
-//you should install react-google-charts through command "yarn add react-google-charts" or "npm i react-google-charts"
 
 // styles
 const styles = {
@@ -149,7 +142,6 @@ class MainPage extends Component {
             }
         })
         // console.log(weeklyReminders)
-        // return weeklyReminders
         return this.displayWeeklyReminders(weeklyReminders)
     }
 
@@ -165,36 +157,35 @@ class MainPage extends Component {
             }
         })
         // console.log([weeklyReminders[index - 1]]);
-        // return weeklyReminders
         return this.displaySpecificReminders([weeklyReminders[index]["rem" + bucket]]);
     }
 
     displaySpecificReminders = (reminders) => {
         // console.log(reminders);
         return (
-            <div>
-                {_.map(reminders, (listofAuthors, bucket) => {
+            _.map(reminders, (listofAuthors, bucket) => {
                     return (
-                        <div>
-                            <p>{_.map(listofAuthors, (authorId, randomKey) => {
+                        <div className="reminderList">
+                            {_.map(listofAuthors, (authorId, randomKey) => {
                                 return (
-                                    <div>
-                                    <p>reminder sent to {this.state.jsonData.authors[authorId].name} ({this.state.jsonData.authors[authorId].email})</p>
-                                    <Button id="show" component={Link} to={{
-                                        pathname: "details",
-                                        exercises: this.state.jsonData.authors[authorId].exercises,
-                                        student_id: authorId,
-                                        student_name: this.state.jsonData.authors[authorId].name,
-                                    }} label="Show Details" variant="contained" color="primary">
-                                        Show Details
-                                    </Button>
+                                    <div className="reminderElement">
+                                        {this.state.jsonData.authors[authorId].name} ({this.state.jsonData.authors[authorId].email}) &nbsp;
+                                        <div className="buttonShowDetails">
+                                            <Button id="show" component={Link} to={{
+                                                pathname: "details",
+                                                exercises: this.state.jsonData.authors[authorId].exercises,
+                                                student_id: authorId,
+                                                student_name: this.state.jsonData.authors[authorId].name,
+                                            }} label="Show Details" variant="contained" color="primary">
+                                                Show Details
+                                            </Button>
+                                        </div>
                                     </div>
                                 )
-                            })}</p>
+                            })}
                         </div>
                     )
-                })}
-            </div>
+                })
         )
     }
 
@@ -220,11 +211,11 @@ class MainPage extends Component {
             oneDayData[0] = (days[dayIndex])
             _.map(oneDayRem, (authors, bucket) => {
                 // console.log("bucket: " + authors)
-                if (bucket == 'rem1') {
+                if (bucket === 'rem1') {
                     oneDayData[1] = authors.length
-                } else if (bucket == 'rem2') {
+                } else if (bucket === 'rem2') {
                     oneDayData[2] = authors.length
-                } else if (bucket == 'rem3') {
+                } else if (bucket === 'rem3') {
                     oneDayData[3] = authors.length
                 }
             })
@@ -245,11 +236,11 @@ class MainPage extends Component {
             var dayIndex = new Date(Number(timeStamp)).getDay()
             oneDayData[0] = (days[dayIndex])
             _.map(oneDayRem, (authors, bucket) => {
-                if (bucket == 'rem1') {
+                if (bucket === 'rem1') {
                     oneDayData[1] = authors.length
-                } else if (bucket == 'rem2') {
+                } else if (bucket === 'rem2') {
                     oneDayData[2] = authors.length
-                } else if (bucket == 'rem3') {
+                } else if (bucket === 'rem3') {
                     oneDayData[3] = authors.length
                 }
             })
@@ -287,7 +278,7 @@ class MainPage extends Component {
     // gets the data needed to produce a quarter overview of reminders sent with a weekly breakdown
     getHistogramData = (selectedWeek) => {
       // if user selects the "All" view
-      if (selectedWeek == 0) {
+      if (selectedWeek === 0) {
         // console.log("at getWeeklyReminderByQuarter")
         const weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
         // initialize a new data array to update and return
@@ -331,9 +322,8 @@ class MainPage extends Component {
             case 5:
                 dayName = 'Thursday';
                 break;
-            case 6:
+            default:
                 dayName = 'Friday';
-                break;
         }
         return dayName  ;
     }
@@ -349,7 +339,7 @@ class MainPage extends Component {
             case 2:
                 remName = '2nd'
                 break;
-            case 3:
+            default:
                 remName = '3rd'
                 break;
         }
@@ -414,13 +404,6 @@ class MainPage extends Component {
             });
 
             // console.log(this.state.weekDict);
-            //
-            // The code below is now moved to firebase.js(for test) and functions/index.js (real use)
-            //
-            // generate and push reminders
-            // fetchedJson['reminders'] = this.generateRemindersForQuarter(startDate, endDate);
-            // console.log(fetchedJson);
-            // database.ref('/').update(Object.values(fetchedJson));
         });
     }
 
@@ -435,12 +418,7 @@ class MainPage extends Component {
             <div className="Main">
                 <AppBar position="static">
                     <Toolbar>
-
-                        {/*<span style={styles.dashboard_title}>*/}
-                        {/*    325 Stuff*/}
-                        {/*</span>*/}
-
-                        <Typography variant="h6" className={{flexGrow:1}} >
+                        <Typography variant="h6" >
                             <span style={{color:"white", fontSize:30}}> 325 Dashboard </span>
                         </Typography>
 
@@ -480,10 +458,6 @@ class MainPage extends Component {
                     </Toolbar>
                 </AppBar>
                 <h1>Summary of Reminders Sent by Buckets</h1>
-                {/* <SummaryHistogram 
-                  week={currWeek}
-                  data={this.getHistogramData(currWeek)}
-                /> */}
                 <Chart className="Chart"
                        width={'=800px'}
                        height={'400px'}
@@ -506,26 +480,12 @@ class MainPage extends Component {
 
                 <div className="bucket">
                     {/* commented out because of week index starting at week 0 for the "week all" view for the histogram. causes errors. but we can bring this back if Riesbeck wants */}
-                    <div>{(this.state.isLoaded && (this.state.currWeek !=  0  && this.state.currWeek != 1)) ? this.showDetails(): null}</div>
+                    <div>{(this.state.isLoaded && (this.state.currWeek !==  0  && this.state.currWeek !== 1)) ? this.showDetails(): null}</div>
                 </div>
 
                 <br/><br/><br/><br/><br/>
                 <h1>Student Summaries</h1>
                 {this.state.isLoaded ? <SubmitReminderTable userData={this.state.jsonData["authors"]} /> : null}
-
-                {/* <div className="reminderDetails">
-                    <div className="fourday">
-                        <h1>
-                            The 4-day reminders:
-                        </h1>
-                        {this.state.isLoaded ? this.populateSpecificWeekList(currWeek) : null}
-                    </div>
-                    <div className="twoweek">
-                        <h1>
-                            The 2-week reminders:
-                        </h1>
-                    </div>
-                </div> */}
             </div>
         );
     }
