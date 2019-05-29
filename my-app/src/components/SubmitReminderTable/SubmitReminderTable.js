@@ -4,7 +4,7 @@ import ReactTable from 'react-table';
 import 'react-table/react-table.css'
 import * as _ from "lodash";
 import {SubmitReminderChart} from "../SubmitReminderChart";
-import {startDate, endDate} from '../../pages/MainPage/MainPage';
+import {endDate} from '../../pages/MainPage/MainPage';
 
 
 class SubmitReminderTable extends Component {
@@ -13,7 +13,7 @@ class SubmitReminderTable extends Component {
         const authors = this.props.userData;
         const data = [];
 
-        console.log(authors);
+        //console.log(authors);
 
         _.forEach(authors, (details, authorID) => {
             // build a submission & reminder severity array
@@ -44,53 +44,8 @@ class SubmitReminderTable extends Component {
                     srArray.push(tmp);
                 }
             }
-            if (authorID === "1795")
-                console.log(srArray);
-            var sev = 0;
-            let rem1Coefficient = 1.0;
-            let rem2Coefficient = 2.0;
-            let rem3Coefficient = 5.0;
-            let currCoefficient = rem1Coefficient;
-            let lastRemTimestamp = 0;
-            for (let i = 0; i < srArray.length; i++) {
-                let timestamp = Object.keys(srArray[i])[0];
-                if (srArray[i][timestamp] === "rem1"
-                    || srArray[i][timestamp] === "rem2"
-                    || srArray[i][timestamp] === "rem3") {
-                    lastRemTimestamp = timestamp;
-                    let j = i;
-                    while (j < srArray.length - 1) {
-                        j++;
-                        let timestampj = Object.keys(srArray[j])[0];
-                        sev += currCoefficient * (timestampj - timestamp);
 
-                        if (authorID === "1795")
-                            console.log(sev);
-
-                        if (srArray[j][timestampj] === "rem1") {
-                            currCoefficient = rem1Coefficient;
-                            lastRemTimestamp = timestampj;
-                        }
-                        else if (srArray[j][timestampj] === "rem2") {
-                            lastRemTimestamp = timestampj;
-                            currCoefficient = rem2Coefficient;
-                        }
-                        else if (srArray[j][timestampj] === "rem3") {
-                            lastRemTimestamp = timestampj;
-                            currCoefficient = rem2Coefficient;
-                        }
-                        else if (srArray[j][timestampj] === "submission") {
-                            currCoefficient = 0;
-                            break;
-                        }
-                    }
-                    i = j;
-                }
-            }
-            if (currCoefficient !== 0)
-                sev += currCoefficient * (endDate - lastRemTimestamp);
-
-            sev /= 1000000000;
+            let sev = this.calculateSeverity(srArray);
             // _.forEach(details.reminders, (reminders, time) => {
             //     var bucket_sum = 0;
             //     _.map(reminders, (rem) => {
@@ -134,7 +89,7 @@ class SubmitReminderTable extends Component {
                 Header: 'Submission & Reminder Chart',
                 columns: [
                     {
-                        width: Math.round(window.innerWidth * 0.65),
+                        width: Math.round(window.innerWidth * 0.64),
                         Header: 'Chart',
                         accessor: 'authorID',
                         Cell: row => (
@@ -148,6 +103,49 @@ class SubmitReminderTable extends Component {
             }];
 
 
+    }
+
+    calculateSeverity(srArray) {
+        let sev = 0;
+        let rem1Coefficient = 1.0;
+        let rem2Coefficient = 2.0;
+        let rem3Coefficient = 5.0;
+        let currCoefficient = rem1Coefficient;
+        let lastRemTimestamp = 0;
+        for (let i = 0; i < srArray.length; i++) {
+            let timestamp = Object.keys(srArray[i])[0];
+            if (srArray[i][timestamp] === "rem1"
+                || srArray[i][timestamp] === "rem2"
+                || srArray[i][timestamp] === "rem3") {
+                lastRemTimestamp = timestamp;
+                let j = i;
+                while (j < srArray.length - 1) {
+                    j++;
+                    let timestampj = Object.keys(srArray[j])[0];
+                    sev += currCoefficient * (timestampj - timestamp);
+
+                    if (srArray[j][timestampj] === "rem1") {
+                        lastRemTimestamp = timestampj;
+                        currCoefficient = rem1Coefficient;
+                    } else if (srArray[j][timestampj] === "rem2") {
+                        lastRemTimestamp = timestampj;
+                        currCoefficient = rem2Coefficient;
+                    } else if (srArray[j][timestampj] === "rem3") {
+                        lastRemTimestamp = timestampj;
+                        currCoefficient = rem3Coefficient;
+                    } else if (srArray[j][timestampj] === "submission") {
+                        currCoefficient = 0;
+                        break;
+                    }
+                }
+                i = j;
+            }
+        }
+        if (currCoefficient !== 0)
+            sev += currCoefficient * (endDate - lastRemTimestamp);
+
+        sev /= 1000000000;
+        return sev;
     }
 
     render() {

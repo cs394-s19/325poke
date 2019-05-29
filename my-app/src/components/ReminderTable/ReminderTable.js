@@ -1,8 +1,5 @@
 import React, { Component } from 'react';
-import _ from 'lodash';
-import { Link } from 'react-router-dom';
 import './styles.css';
-import database from '../../firebase'
 import ReactTable from 'react-table';
 import 'react-table/react-table.css'
 

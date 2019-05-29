@@ -35,9 +35,9 @@ const styles = {
 };
 
 const numDays = 4;
-const firstRemDays = 4;
-const secondRemDays = 7;
-const thirdRemDays = 10;
+// const firstRemDays = 4;
+// const secondRemDays = 7;
+// const thirdRemDays = 10;
 
 // class start date = Thursday, September 27th
 const startDate = new Date('September 27, 2018 08:00:00').getTime()
@@ -322,8 +322,11 @@ class MainPage extends Component {
             case 5:
                 dayName = 'Thursday';
                 break;
-            default:
+            case 6:
                 dayName = 'Friday';
+                break;
+            default:
+                break;
         }
         return dayName  ;
     }
@@ -339,8 +342,10 @@ class MainPage extends Component {
             case 2:
                 remName = '2nd'
                 break;
-            default:
+            case 3:
                 remName = '3rd'
+                break;
+            default:
                 break;
         }
         return remName;
@@ -413,7 +418,7 @@ class MainPage extends Component {
 
     render() {
         const {classes} = this.props;
-        const {currWeek, weekDict} = this.state;
+        const {currWeek} = this.state;
         return (
             <div className="Main">
                 <AppBar position="static">
@@ -422,7 +427,7 @@ class MainPage extends Component {
                             <span style={{color:"white", fontSize:30}}> 325 Dashboard </span>
                         </Typography>
 
-                        <span style={{flexGrow:1}}></span>
+                        <span style={{flexGrow:1}}>&nbsp;</span>
 
                         <span>Week:</span> &nbsp;
                         <form autoComplete="off">
