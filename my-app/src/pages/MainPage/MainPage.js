@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import _ from 'lodash';
-import {Button, List, ListItem, ListItemText, AppBar, Toolbar, Typography, IconButton} from '@material-ui/core';
+import {Button, List, ListItem, ListItemText, AppBar, Toolbar, Typography, IconButton, Badge} from '@material-ui/core';
+import NotificationsIcon from '@material-ui/icons/Notifications';
 import {Link} from 'react-router-dom';
 import './styles.css';
 import database from '../../firebase'
@@ -439,10 +440,14 @@ class MainPage extends Component {
                         {/*<span style={styles.dashboard_title}>*/}
                         {/*    325 Stuff*/}
                         {/*</span>*/}
-
                         <Typography variant="h6" className={{flexGrow:1}} >
                             <span style={{color:"white", fontSize:30}}> 325 Dashboard </span>
                         </Typography>
+
+                        <MenuItem style={{color: 'white', marginLeft: 4}}>
+                              <NotificationsIcon />
+                          <p>Settings</p>
+                        </MenuItem>
 
                         <span style={{flexGrow:1}}></span>
 
