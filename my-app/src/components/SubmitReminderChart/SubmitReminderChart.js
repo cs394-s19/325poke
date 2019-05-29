@@ -144,7 +144,6 @@ export class SubmitReminderChart extends Component {
             let firstSubmissionList = [];
             let tempData = [];
             _.forEach(detail.submit_hist, (hist, index) => {
-
                 let tempDate = this.mapTimestampToDate(hist.submitted, dayList);
                 if (index === 0) {
                     if (firstSubmissionList.indexOf(tempDate) !== -1) {
@@ -178,7 +177,7 @@ export class SubmitReminderChart extends Component {
             this.option["series"].push(jsonObjFirstSubmission);
         });
 
-        console.log(this.option);
+        //console.log(this.option);
         return (
             <div>
                 <ReactEcharts

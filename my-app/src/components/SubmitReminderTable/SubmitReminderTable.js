@@ -12,18 +12,94 @@ class SubmitReminderTable extends Component {
         super(props);
         const authors = this.props.userData;
         const data = [];
-        
+
+        console.log(authors);
+
         _.forEach(authors, (details, authorID) => {
-            var sev = 0;
-            _.forEach(details.reminders, (reminders, time) => {
-                var bucket_sum = 0;
-                _.map(reminders, (rem) => {
-                    bucket_sum += parseInt(rem[rem.length -1]);
-                });
-                sev += bucket_sum * Math.pow(0.9, (endDate - time - 3600000) / 86400000);
+            // build a submission & reminder severity array
+            let srArray = [];
+            let subIndex = 0;
+            _.forEach(details.reminders, (remType, timestamp) => {
+                for (; subIndex < details.submissions.length; subIndex++) {
+                    if (details.submissions[subIndex].submitted < timestamp) {
+                        let tmp = {};
+                        tmp[details.submissions[subIndex].submitted] = "submission";
+                        srArray.push(tmp);
+                    } else
+                        break;
+                }
+                let tmp = {};
+                if (remType.indexOf("rem1") !== -1)
+                    tmp[timestamp] = "rem1";
+                else if (remType.indexOf("rem2") !== -1)
+                    tmp[timestamp] = "rem2";
+                else if (remType.indexOf("rem3") !== -1)
+                    tmp[timestamp] = "rem3";
+                srArray.push(tmp);
             });
+            if (subIndex < details.submissions.length) {
+                for (; subIndex < details.submissions.length; subIndex++) {
+                    let tmp = {};
+                    tmp[details.submissions[subIndex].submitted] = "submission";
+                    srArray.push(tmp);
+                }
+            }
+            if (authorID === "1795")
+                console.log(srArray);
+            var sev = 0;
+            let rem1Coefficient = 1.0;
+            let rem2Coefficient = 2.0;
+            let rem3Coefficient = 5.0;
+            let currCoefficient = rem1Coefficient;
+            let lastRemTimestamp = 0;
+            for (let i = 0; i < srArray.length; i++) {
+                let timestamp = Object.keys(srArray[i])[0];
+                if (srArray[i][timestamp] === "rem1"
+                    || srArray[i][timestamp] === "rem2"
+                    || srArray[i][timestamp] === "rem3") {
+                    lastRemTimestamp = timestamp;
+                    let j = i;
+                    while (j < srArray.length - 1) {
+                        j++;
+                        let timestampj = Object.keys(srArray[j])[0];
+                        sev += currCoefficient * (timestampj - timestamp);
+
+                        if (authorID === "1795")
+                            console.log(sev);
+
+                        if (srArray[j][timestampj] === "rem1") {
+                            currCoefficient = rem1Coefficient;
+                            lastRemTimestamp = timestampj;
+                        }
+                        else if (srArray[j][timestampj] === "rem2") {
+                            lastRemTimestamp = timestampj;
+                            currCoefficient = rem2Coefficient;
+                        }
+                        else if (srArray[j][timestampj] === "rem3") {
+                            lastRemTimestamp = timestampj;
+                            currCoefficient = rem2Coefficient;
+                        }
+                        else if (srArray[j][timestampj] === "submission") {
+                            currCoefficient = 0;
+                            break;
+                        }
+                    }
+                    i = j;
+                }
+            }
+            if (currCoefficient !== 0)
+                sev += currCoefficient * (endDate - lastRemTimestamp);
+
+            sev /= 1000000000;
+            // _.forEach(details.reminders, (reminders, time) => {
+            //     var bucket_sum = 0;
+            //     _.map(reminders, (rem) => {
+            //         bucket_sum += parseInt(rem[rem.length - 1]);
+            //     });
+            //     sev += bucket_sum * Math.pow(0.9, (endDate - time - 3600000) / 86400000);
+            // });
             let tmpObj = {
-                name: details.name,
+                name: authorID,
                 email: details.email,
                 authorID: authorID,
                 severity: sev
@@ -48,12 +124,12 @@ class SubmitReminderTable extends Component {
                     accessor: 'email',
                     // Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
                 },
-                {
-                    width: Math.round(window.innerWidth * 0.05),
-                    Header: 'Severity',
-                    accessor: 'severity',
-                    // Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
-                }]
+                    {
+                        width: Math.round(window.innerWidth * 0.05),
+                        Header: 'Severity',
+                        accessor: 'severity',
+                        // Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
+                    }]
             }, {
                 Header: 'Submission & Reminder Chart',
                 columns: [
@@ -66,7 +142,7 @@ class SubmitReminderTable extends Component {
                                 <SubmitReminderChart userData={authors[row.value]}/>
                             </div>
                         ),
-                        
+
                     }
                 ]
             }];
