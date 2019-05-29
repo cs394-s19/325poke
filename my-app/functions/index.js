@@ -5,6 +5,8 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp();
 
+const axios = require('axios');
+
 const startDate = new Date('September 27, 2018 08:00:00').getTime()
 const endDate = new Date('December 14, 2018 08:00:00').getTime()
 const numDays = 4;
@@ -146,11 +148,29 @@ function sendEmail(json) {
 
 exports.updateDatabaseAndSendEmail =
     functions.pubsub.schedule('0 20 * * *').timeZone('America/Chicago').onRun((context) => {
-        // query database
-        return admin.database().ref('/').once('value').then((snapshot) => {
-            // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
-            let newJson = updateJson(snapshot.val(), fetchJson());
-            // upload the data to database
-            admin.database().ref('/').update(newJson);
-        });
+        axios.get('/')
+            .then(function (response) {
+                // query database
+                admin.database().ref('/').once('value').then((snapshot) => {
+                // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
+                let newJson = updateJson(snapshot.val(), fetchJson());
+                // upload the data to database
+                admin.database().ref('/').update(newJson);
+                });
+                console.log(response);
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+            .finally(function () {
+                axios.post('/', [])
+                .then(function (response) {
+                    console.log(response);
+                  })
+                  .catch(function (error) {
+                    console.log(error);
+                  });
+            });
+
     });
