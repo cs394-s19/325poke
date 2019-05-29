@@ -10,7 +10,7 @@ export class Details extends Component {
             exercises: this.props.location.exercises, 
             student_id: this.props.location.student_id,
             student_name: this.props.location.student_name,
-            currentTime: this.props.location.currentTime,
+            //currentTime: this.props.location.currentTime,
         };
     };
 
@@ -36,7 +36,8 @@ export class Details extends Component {
       return _.map(this.state.exercises, (exercise, index) => {
           if (index === 'ignoreme')
               return;
-        const hist = _.filter(exercise.submit_hist, (entry) => entry.submitted < this.state.currentTime);
+        //const hist = _.filter(exercise.submit_hist, (entry) => entry.submitted < this.state.currentTime);
+        const hist = exercise.submit_hist
         console.log(hist);
         if (_.isEmpty(hist)) {
           // to identify when we have no submissions
