@@ -1,19 +1,15 @@
 import React, {Component} from 'react';
 import _ from 'lodash';
-import {Button, List, AppBar, Toolbar, Typography} from '@material-ui/core';
+import { AppBar, Button, FormControl, List, MenuItem, Select, Toolbar, Typography, withStyles } from '@material-ui/core';
 import {Link} from 'react-router-dom';
 import './styles.css';
 import database from '../../firebase'
 import Chart from 'react-google-charts';
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
-import withStyles from "@material-ui/core/styles/withStyles";
 
 import {
+  SubmitReminderChart, 
   SubmitReminderTable,
 } from '../../components';
-//you should install react-google-charts through command "yarn add react-google-charts" or "npm i react-google-charts"
 
 // styles
 const styles = {
@@ -146,7 +142,6 @@ class MainPage extends Component {
             }
         })
         // console.log(weeklyReminders)
-        // return weeklyReminders
         return this.displayWeeklyReminders(weeklyReminders)
     }
 
@@ -162,36 +157,35 @@ class MainPage extends Component {
             }
         })
         // console.log([weeklyReminders[index - 1]]);
-        // return weeklyReminders
         return this.displaySpecificReminders([weeklyReminders[index]["rem" + bucket]]);
     }
 
     displaySpecificReminders = (reminders) => {
         // console.log(reminders);
         return (
-            <div>
-                {_.map(reminders, (listofAuthors, bucket) => {
+            _.map(reminders, (listofAuthors, bucket) => {
                     return (
-                        <div>
-                            <p>{_.map(listofAuthors, (authorId, randomKey) => {
+                        <div className="reminderList">
+                            {_.map(listofAuthors, (authorId, randomKey) => {
                                 return (
-                                    <div>
-                                    <p>reminder sent to {this.state.jsonData.authors[authorId].name} ({this.state.jsonData.authors[authorId].email})</p>
-                                    <Button id="show" component={Link} to={{
-                                        pathname: "details",
-                                        exercises: this.state.jsonData.authors[authorId].exercises,
-                                        student_id: authorId,
-                                        student_name: this.state.jsonData.authors[authorId].name,
-                                    }} label="Show Details" variant="contained" color="primary">
-                                        Show Details
-                                    </Button>
+                                    <div className="reminderElement">
+                                        {this.state.jsonData.authors[authorId].name} ({this.state.jsonData.authors[authorId].email}) &nbsp;
+                                        <div className="buttonShowDetails">
+                                            <Button id="show" component={Link} to={{
+                                                pathname: "details",
+                                                exercises: this.state.jsonData.authors[authorId].exercises,
+                                                student_id: authorId,
+                                                student_name: this.state.jsonData.authors[authorId].name,
+                                            }} label="Show Details" variant="contained" color="primary">
+                                                Show Details
+                                            </Button>
+                                        </div>
                                     </div>
                                 )
-                            })}</p>
+                            })}
                         </div>
                     )
-                })}
-            </div>
+                })
         )
     }
 
@@ -415,13 +409,6 @@ class MainPage extends Component {
             });
 
             // console.log(this.state.weekDict);
-            //
-            // The code below is now moved to firebase.js(for test) and functions/index.js (real use)
-            //
-            // generate and push reminders
-            // fetchedJson['reminders'] = this.generateRemindersForQuarter(startDate, endDate);
-            // console.log(fetchedJson);
-            // database.ref('/').update(Object.values(fetchedJson));
         });
     }
 
@@ -436,12 +423,7 @@ class MainPage extends Component {
             <div className="Main">
                 <AppBar position="static">
                     <Toolbar>
-
-                        {/*<span style={styles.dashboard_title}>*/}
-                        {/*    325 Stuff*/}
-                        {/*</span>*/}
-
-                        <Typography variant="h6">
+                        <Typography variant="h6" >
                             <span style={{color:"white", fontSize:30}}> 325 Dashboard </span>
                         </Typography>
 
@@ -481,10 +463,6 @@ class MainPage extends Component {
                     </Toolbar>
                 </AppBar>
                 <h1>Summary of Reminders Sent by Buckets</h1>
-                {/* <SummaryHistogram 
-                  week={currWeek}
-                  data={this.getHistogramData(currWeek)}
-                /> */}
                 <Chart className="Chart"
                        width={'=800px'}
                        height={'400px'}
@@ -513,20 +491,6 @@ class MainPage extends Component {
                 <br/><br/><br/><br/><br/>
                 <h1>Student Summaries</h1>
                 {this.state.isLoaded ? <SubmitReminderTable userData={this.state.jsonData["authors"]} /> : null}
-
-                {/* <div className="reminderDetails">
-                    <div className="fourday">
-                        <h1>
-                            The 4-day reminders:
-                        </h1>
-                        {this.state.isLoaded ? this.populateSpecificWeekList(currWeek) : null}
-                    </div>
-                    <div className="twoweek">
-                        <h1>
-                            The 2-week reminders:
-                        </h1>
-                    </div>
-                </div> */}
             </div>
         );
     }
