@@ -45,7 +45,53 @@ class SubmitReminderTable extends Component {
                 }
             }
 
-            let sev = this.calculateSeverity(srArray);
+            if (details.name === "Orea Crowell" || details.name === "Thatcher Pontius")
+                console.log(srArray);
+
+            let sev = 0;
+            let rem1Coefficient = 1.0;
+            let rem2Coefficient = 2.0;
+            let rem3Coefficient = 3.0;
+            let currCoefficient = rem1Coefficient;
+            let lastRemTimestamp = 0;
+            for (let i = 0; i < srArray.length; i++) {
+                let timestamp = Object.keys(srArray[i])[0];
+                if (srArray[i][timestamp] === "rem1"
+                    || srArray[i][timestamp] === "rem2"
+                    || srArray[i][timestamp] === "rem3") {
+                    lastRemTimestamp = timestamp;
+                    let j = i;
+                    while (j < srArray.length - 1) {
+                        j++;
+                        let timestampj = Object.keys(srArray[j])[0];
+                        sev += currCoefficient * (timestampj - timestamp);
+                        if (details.name === "Orea Crowell" || details.name === "Thatcher Pontius")
+                            console.log(sev + "  " + timestamp + "  " + timestampj);
+                        if (srArray[j][timestampj] === "rem1") {
+                            lastRemTimestamp = timestampj;
+                            currCoefficient = rem1Coefficient;
+                        } else if (srArray[j][timestampj] === "rem2") {
+                            lastRemTimestamp = timestampj;
+                            currCoefficient = rem2Coefficient;
+                        } else if (srArray[j][timestampj] === "rem3") {
+                            lastRemTimestamp = timestampj;
+                            currCoefficient = rem3Coefficient;
+                        } else if (srArray[j][timestampj] === "submission") {
+                            currCoefficient = rem1Coefficient;
+                            sev *= 0.95;
+                            break;
+                        }
+                    }
+                    i = j;
+                } else {
+                    sev *= 0.95;
+                }
+            }
+            if (currCoefficient !== rem1Coefficient)
+                sev += currCoefficient * (endDate - lastRemTimestamp);
+
+            sev /= 1000000000;
+
             // _.forEach(details.reminders, (reminders, time) => {
             //     var bucket_sum = 0;
             //     _.map(reminders, (rem) => {
@@ -74,13 +120,13 @@ class SubmitReminderTable extends Component {
                     accessor: 'name',
                     // Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
                 }, {
-                    width: Math.round(window.innerWidth * 0.16),
+                    width: Math.round(window.innerWidth * 0.12),
                     Header: 'Email',
                     accessor: 'email',
                     // Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
                 },
                     {
-                        width: Math.round(window.innerWidth * 0.06),
+                        width: Math.round(window.innerWidth * 0.10),
                         Header: 'Severity',
                         accessor: 'severity',
                         // Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
@@ -109,7 +155,7 @@ class SubmitReminderTable extends Component {
         let sev = 0;
         let rem1Coefficient = 1.0;
         let rem2Coefficient = 2.0;
-        let rem3Coefficient = 5.0;
+        let rem3Coefficient = 3.0;
         let currCoefficient = rem1Coefficient;
         let lastRemTimestamp = 0;
         for (let i = 0; i < srArray.length; i++) {
