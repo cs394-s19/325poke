@@ -74,6 +74,52 @@ class MainPage extends Component {
         return res;
     }
 
+    // Get variables needed to send to a given author.
+    // Returns object with relevant information.
+
+    getAuthorVars = (author, curr_time) => {
+        let submissions = _.filter(author["submissions"], (o => o["submitted"] < curr_time));
+
+        let new_submissions = _.uniqBy(submissions, (o => o["exid"]) );
+
+        let newest_new_submission = _.maxBy(new_submissions, (o => o.submitted));
+
+        let ex_last = curr_time - newest_new_submission["submitted"];
+
+        let exp = 3 * Math.floor( (curr_time - date1) / 604800000);
+
+        let most_recent_sub = this.mostRecentSubTime(author, curr_time);
+        let sub_last = curr_time - most_recent_sub;
+
+        let subs = submissions.length;
+
+        let exercises_chronological = _.sortBy(submissions, (o => o.submitted));
+        _.reverse(exercises_chronological);
+        let exercises = _.uniqBy(exercises_chronological, ( o => o["exid"]));
+
+        let total_ex = exercises.length;
+        let exercises_done = _.filter(exercises, (o => o.status == "Done")).length;
+        let exercises_not_done = total_ex - exercises_done;
+
+        return {
+            sub_last: sub_last,
+            ex_last: ex_last,
+            exercises_done: exercises_done,
+            exercises_not_done: exercises_not_done,
+            subs: subs,
+            exp: exp,
+        };
+    };
+
+
+    getEmailVars = (json, currentTime) => {
+
+        // use getAuthorVars on every author!
+        let authors = json.authors;
+        _.map(authors, (o => this.getAuthorVars(o, currentTime) ) )
+
+    };
+
     // given a base date, returns an array of author ids to which we need to send reminders
     getAnyReminders = (currentTime) => {
         // return an array with author ids
@@ -390,6 +436,9 @@ class MainPage extends Component {
         database.ref('/').once('value').then((snapshot) => {
             // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
             let fetchedJson = snapshot.val();
+
+            console.log(fetchedJson);
+
             if (fetchedJson.hasOwnProperty("authors")) {
                 let idx = 0
 
@@ -406,6 +455,8 @@ class MainPage extends Component {
                 reminders: fetchedJson.reminders,
                 isLoaded: true,
             });
+
+
 
             // console.log(this.state.weekDict);
             //

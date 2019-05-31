@@ -13,6 +13,7 @@ const secondRemDays = 7;
 const thirdRemDays = 10;
 
 
+
 function isSubmitInSubmitHist(hist, newSubmit) {
     let res = false;
     hist.forEach((submit) => {
@@ -140,7 +141,24 @@ function updateJson(originjson, json) {
     return formattedJson;
 }
 
+function getReminderVars(databaseJSON) {
+
+    console.log(admin.database);
+
+};
+
 function sendEmail(json) {
+
+    return admin.database().ref('/').once('value').then((snapshot) => {
+        // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
+        let newJson = updateJson(snapshot.val(), fetchJson());
+
+        // getReminderVars(newJson)
+        // upload the data to database
+
+        console.log(newJson);
+        admin.database().ref('/').update(newJson);
+    });
 
 }
 
@@ -151,6 +169,7 @@ exports.updateDatabaseAndSendEmail =
             // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
             let newJson = updateJson(snapshot.val(), fetchJson());
             // upload the data to database
+
             admin.database().ref('/').update(newJson);
         });
     });
