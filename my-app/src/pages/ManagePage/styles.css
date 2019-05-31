@@ -1,0 +1,12 @@
+.h1{
+text-align: center;
+}
+
+.wrapper {
+display: grid;
+grid-template-columns: 1fr 0.3fr 1fr;
+}
+
+/* .email {
+    text-align: center;
+} */
