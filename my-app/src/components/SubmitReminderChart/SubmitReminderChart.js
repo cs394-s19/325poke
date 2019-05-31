@@ -25,14 +25,6 @@ export class SubmitReminderChart extends Component {
         }
         return -1;
     }
-    constructor(props) {
-        super(props);
-        //console.log(this.option);
-    }
-
-    componentDidMount() {
-
-    }
 
     render() {
         const {reminders, exercises} = this.props.userData;
@@ -83,12 +75,6 @@ export class SubmitReminderChart extends Component {
         };
         this.option = {
             backgroundColor: '#eee',
-            legend: {
-                data: ['bar', 'bar2', 'bar3', 'bar4'],
-                align: 'left',
-                left: 10
-            },
-
             tooltip: {},
             xAxis: {
                 data: xAxisData,
@@ -144,7 +130,6 @@ export class SubmitReminderChart extends Component {
             let firstSubmissionList = [];
             let tempData = [];
             _.forEach(detail.submit_hist, (hist, index) => {
-
                 let tempDate = this.mapTimestampToDate(hist.submitted, dayList);
                 if (index === 0) {
                     if (firstSubmissionList.indexOf(tempDate) !== -1) {
@@ -166,19 +151,19 @@ export class SubmitReminderChart extends Component {
                 stack: 'one',
                 itemStyle: itemStyleFirstSubmission,
                 data: firstSubmissionList
-            }
+            };
             let jsonObjResubmission = {
                 name: exid,
                 type: 'bar',
                 stack: 'one',
                 itemStyle: itemStyleResubmission,
                 data: tempData
-            }
+            };
             this.option["series"].push(jsonObjResubmission);
             this.option["series"].push(jsonObjFirstSubmission);
         });
 
-        console.log(this.option);
+        //console.log(this.option);
         return (
             <div>
                 <ReactEcharts
