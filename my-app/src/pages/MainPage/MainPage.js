@@ -7,7 +7,7 @@ import database from '../../firebase'
 import Chart from 'react-google-charts';
 
 import {
-  SubmitReminderChart, 
+  SubmitReminderChart,
   SubmitReminderTable,
 } from '../../components';
 
@@ -22,12 +22,6 @@ const styles = {
     },
     arrowColor: {
         fill: 'white'
-    },
-    dashboard_title: {
-        color: 'green',
-        fontSize: 50,
-        backgroundColor: 'red',
-        textalign: 'center',
     },
     week_label: {
         marginRight: 100,
@@ -72,6 +66,50 @@ class MainPage extends Component {
         }
         return res;
     }
+
+    // Get variables needed to send to a given author.
+    // Returns object with relevant information.
+    getAuthorVars = (author, curr_time) => {
+        let sub_last = null;
+        let ex_last = null;
+
+        const submissions = _.filter(author["submissions"], (o => o["submitted"] < curr_time));
+        if (submissions.length > 0) {
+          const newest_submission = _.maxBy(submissions, (o => o.submitted));
+          sub_last = Math.floor((curr_time - newest_submission["submitted"]) / 86400000);
+        }
+
+        // only new submissions
+        const subs_chronological = _.sortBy(submissions, (o => o.submitted));
+        const new_submissions = _.uniqBy(subs_chronological, (o => o["exid"]) );
+        if (new_submissions.length > 0) {
+          const newest_new_submission = _.maxBy(new_submissions, (o => o.submitted));
+          ex_last = Math.floor((curr_time - newest_new_submission["submitted"]) / 86400000);
+        }
+
+        // only most recent version of submissions
+        const subs_rev_chronological = _.reverse(subs_chronological);
+        const exercises = _.uniqBy(subs_rev_chronological, ( o => o["exid"]));
+
+        const exercises_done = _.filter(exercises, (o => o.status == "Done")).length;
+        const exercises_not_done = exercises.length - exercises_done;
+
+        return {
+            sub_last: sub_last,
+            ex_last: ex_last,
+            exercises_done: exercises_done,
+            exercises_not_done: exercises_not_done,
+            subs: submissions.length,
+            exp: 3 * Math.floor( (curr_time - date1) / 604800000)
+        };
+    };
+
+
+    getEmailVars = (json, currentTime) => {
+        console.log("email vars");
+        console.log(json.authors);
+        console.log(_.mapValues(json.authors, (o => this.getAuthorVars(o, currentTime))));
+    };
 
     // given a base date, returns an array of author ids to which we need to send reminders
     getAnyReminders = (currentTime) => {
@@ -391,6 +429,9 @@ class MainPage extends Component {
         database.ref('/').once('value').then((snapshot) => {
             // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
             let fetchedJson = snapshot.val();
+
+            console.log(fetchedJson);
+
             if (fetchedJson.hasOwnProperty("authors")) {
                 let idx = 0
 
@@ -407,6 +448,9 @@ class MainPage extends Component {
                 reminders: fetchedJson.reminders,
                 isLoaded: true,
             });
+
+            // for testing
+            this.getEmailVars(fetchedJson, date4);
 
             // console.log(this.state.weekDict);
         });
