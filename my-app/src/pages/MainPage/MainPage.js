@@ -477,6 +477,12 @@ class MainPage extends Component {
                                 </Select>
                             </FormControl>
                         </form>
+                        <Button id="show" component={Link} to={{
+                            pathname: "managepage",
+                            student: this.state.jsonData.authors,
+                        }} label="Manage" variant="contained" color="primary">
+                            Manage
+                        </Button>
                     </Toolbar>
                 </AppBar>
                 <h1>Summary of Reminders Sent by Buckets</h1>
