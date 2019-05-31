@@ -12,6 +12,20 @@ const firstRemDays = 4;
 const secondRemDays = 7;
 const thirdRemDays = 10;
 
+// for testing
+const date1 = new Date('September 28, 2018 08:00:00').getTime()
+const date2 = new Date('October 5, 2018 08:00:00').getTime()
+const date3 = new Date('October 12, 2018 08:00:00').getTime()
+const date4 = new Date('October 19, 2018 08:00:00').getTime()
+const date5 = new Date('October 26, 2018 08:00:00').getTime()
+const date6 = new Date('November 2, 2018 08:00:00').getTime()
+const date7 = new Date('November 9, 2018 08:00:00').getTime()
+const date8 = new Date('November 16, 2018 08:00:00').getTime()
+const date9 = new Date('November 23, 2018 08:00:00').getTime()
+const date10 = new Date('November 30, 2018 08:00:00').getTime()
+const date11 = new Date('December 7, 2018 08:00:00').getTime()
+const date12 = new Date('December 14, 2018 08:00:00').getTime()
+
 
 
 function isSubmitInSubmitHist(hist, newSubmit) {
@@ -141,25 +155,52 @@ function updateJson(originjson, json) {
     return formattedJson;
 }
 
-function getReminderVars(databaseJSON) {
+// Get variables needed to send to a given author.
+// Returns object with relevant information.
+function getAuthorVars (author, curr_time) {
+    let sub_last = null;
+    let ex_last = null;
 
-    console.log(admin.database);
+    const submissions = _.filter(author["submissions"], (o => o["submitted"] < curr_time));
+    if (submissions.length > 0) {
+      const newest_submission = _.maxBy(submissions, (o => o.submitted));
+      sub_last = Math.floor((curr_time - newest_submission["submitted"]) / 86400000);
+    }
 
+    // only new submissions
+    const subs_chronological = _.sortBy(submissions, (o => o.submitted));
+    const new_submissions = _.uniqBy(subs_chronological, (o => o["exid"]) );
+    if (new_submissions.length > 0) {
+      const newest_new_submission = _.maxBy(new_submissions, (o => o.submitted));
+      ex_last = Math.floor((curr_time - newest_new_submission["submitted"]) / 86400000);
+    }
+
+    // only most recent version of submissions
+    const subs_rev_chronological = _.reverse(subs_chronological);
+    const exercises = _.uniqBy(subs_rev_chronological, ( o => o["exid"]));
+
+    const exercises_done = _.filter(exercises, (o => o.status == "Done")).length;
+    const exercises_not_done = exercises.length - exercises_done;
+
+    return {
+        sub_last: sub_last,
+        ex_last: ex_last,
+        exercises_done: exercises_done,
+        exercises_not_done: exercises_not_done,
+        subs: submissions.length,
+        exp: 3 * Math.floor( (curr_time - date1) / 604800000)
+    };
 };
 
-function sendEmail(json) {
+function getEmailVars (json, currentTime) {
+    return _.mapValues(json.authors, (o => this.getAuthorVars(o, currentTime)));
+};
 
-    return admin.database().ref('/').once('value').then((snapshot) => {
-        // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
-        let newJson = updateJson(snapshot.val(), fetchJson());
-
-        // getReminderVars(newJson)
-        // upload the data to database
-
-        console.log(newJson);
-        admin.database().ref('/').update(newJson);
-    });
-
+function sendEmails(json, currentTime) {
+    const emailVars = getEmailVars(json, currentTime);
+    const reminderBuckets = json.reminders(currentTime);
+    // TODO: use the emailVars with templates to send reminder emails
+    // Post request [authid: {subject, text}]
 }
 
 exports.updateDatabaseAndSendEmail =
@@ -169,7 +210,8 @@ exports.updateDatabaseAndSendEmail =
             // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
             let newJson = updateJson(snapshot.val(), fetchJson());
             // upload the data to database
-
             admin.database().ref('/').update(newJson);
+            // send emails as of a certain date
+            sendEmails(newJson, date4);
         });
     });

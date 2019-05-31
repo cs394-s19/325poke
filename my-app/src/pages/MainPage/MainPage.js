@@ -11,8 +11,8 @@ import MenuItem from "@material-ui/core/MenuItem";
 import withStyles from "@material-ui/core/styles/withStyles";
 
 import {
-  ReminderTable, 
-  SubmitReminderChart, 
+  ReminderTable,
+  SubmitReminderChart,
   SubmitReminderTable,
   SummaryHistogram
 } from '../../components';
@@ -76,48 +76,46 @@ class MainPage extends Component {
 
     // Get variables needed to send to a given author.
     // Returns object with relevant information.
-
     getAuthorVars = (author, curr_time) => {
-        let submissions = _.filter(author["submissions"], (o => o["submitted"] < curr_time));
+        let sub_last = null;
+        let ex_last = null;
 
-        let new_submissions = _.uniqBy(submissions, (o => o["exid"]) );
+        const submissions = _.filter(author["submissions"], (o => o["submitted"] < curr_time));
+        if (submissions.length > 0) {
+          const newest_submission = _.maxBy(submissions, (o => o.submitted));
+          sub_last = Math.floor((curr_time - newest_submission["submitted"]) / 86400000);
+        }
 
-        let newest_new_submission = _.maxBy(new_submissions, (o => o.submitted));
+        // only new submissions
+        const subs_chronological = _.sortBy(submissions, (o => o.submitted));
+        const new_submissions = _.uniqBy(subs_chronological, (o => o["exid"]) );
+        if (new_submissions.length > 0) {
+          const newest_new_submission = _.maxBy(new_submissions, (o => o.submitted));
+          ex_last = Math.floor((curr_time - newest_new_submission["submitted"]) / 86400000);
+        }
 
-        let ex_last = curr_time - newest_new_submission["submitted"];
+        // only most recent version of submissions
+        const subs_rev_chronological = _.reverse(subs_chronological);
+        const exercises = _.uniqBy(subs_rev_chronological, ( o => o["exid"]));
 
-        let exp = 3 * Math.floor( (curr_time - date1) / 604800000);
-
-        let most_recent_sub = this.mostRecentSubTime(author, curr_time);
-        let sub_last = curr_time - most_recent_sub;
-
-        let subs = submissions.length;
-
-        let exercises_chronological = _.sortBy(submissions, (o => o.submitted));
-        _.reverse(exercises_chronological);
-        let exercises = _.uniqBy(exercises_chronological, ( o => o["exid"]));
-
-        let total_ex = exercises.length;
-        let exercises_done = _.filter(exercises, (o => o.status == "Done")).length;
-        let exercises_not_done = total_ex - exercises_done;
+        const exercises_done = _.filter(exercises, (o => o.status == "Done")).length;
+        const exercises_not_done = exercises.length - exercises_done;
 
         return {
             sub_last: sub_last,
             ex_last: ex_last,
             exercises_done: exercises_done,
             exercises_not_done: exercises_not_done,
-            subs: subs,
-            exp: exp,
+            subs: submissions.length,
+            exp: 3 * Math.floor( (curr_time - date1) / 604800000)
         };
     };
 
 
     getEmailVars = (json, currentTime) => {
-
-        // use getAuthorVars on every author!
-        let authors = json.authors;
-        _.map(authors, (o => this.getAuthorVars(o, currentTime) ) )
-
+        console.log("email vars");
+        console.log(json.authors);
+        console.log(_.mapValues(json.authors, (o => this.getAuthorVars(o, currentTime))));
     };
 
     // given a base date, returns an array of author ids to which we need to send reminders
@@ -456,7 +454,8 @@ class MainPage extends Component {
                 isLoaded: true,
             });
 
-
+            // for testing
+            this.getEmailVars(fetchedJson, date4);
 
             // console.log(this.state.weekDict);
             //
@@ -521,7 +520,7 @@ class MainPage extends Component {
                     </Toolbar>
                 </AppBar>
                 <h1>Summary of Reminders Sent by Buckets</h1>
-                {/* <SummaryHistogram 
+                {/* <SummaryHistogram
                   week={currWeek}
                   data={this.getHistogramData(currWeek)}
                 /> */}
