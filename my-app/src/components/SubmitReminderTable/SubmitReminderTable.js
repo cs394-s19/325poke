@@ -4,18 +4,65 @@ import ReactTable from 'react-table';
 import 'react-table/react-table.css'
 import * as _ from "lodash";
 import {SubmitReminderChart} from "../SubmitReminderChart";
-import {endDate} from '../../pages/MainPage/MainPage';
-
+import {endDate, startDate} from '../../pages/MainPage/MainPage';
+const timeOffset = 8 * 3600 * 1000;
 
 class SubmitReminderTable extends Component {
+    generateDayList(startDate, endDate) {
+        let dayList = [];
+        for (let i = startDate; i <= endDate; i+=86400000) {
+            dayList.push(i);
+        }
+
+        return dayList;
+    }
+    mapTimestampToDate(timestamp, dayList) {
+        for (let i = 1; i < dayList.length; i++) {
+            if (timestamp < dayList[i] - timeOffset && timestamp > dayList[i - 1] - timeOffset) {
+                return dayList[i - 1];
+            }
+        }
+        return -1;
+    }
+
     constructor(props) {
         super(props);
         const authors = this.props.userData;
         const data = [];
-
+        let maxSubmissionPerDay = 1;
+        const dayList = this.generateDayList(startDate, endDate);
         //console.log(authors);
 
         _.forEach(authors, (details, authorID) => {
+            let firstSubmissionList = [];
+            let reSubmissionList = [];
+            _.forEach(details.exercises, (detail, exid) => {
+                _.forEach(detail.submit_hist, (hist, index) => {
+                    let tempDate = this.mapTimestampToDate(hist.submitted, dayList);
+                    let dayIndex = dayList.indexOf(tempDate);
+                    if (index === 0) {
+                        if (firstSubmissionList[dayIndex] !== undefined) {
+                            firstSubmissionList[dayIndex] = firstSubmissionList[dayIndex] + 1;
+                            if (firstSubmissionList[dayIndex] + reSubmissionList[dayIndex] > maxSubmissionPerDay) {
+                                //console.log(authorID + "  " + firstSubmissionList[dayIndex] + "  " + reSubmissionList[dayIndex] + "  " + dayIndex);
+                                maxSubmissionPerDay = firstSubmissionList[dayIndex] + reSubmissionList[dayIndex];
+                            }
+                        } else {
+                            firstSubmissionList[dayIndex] = 1;
+                        }
+                        return;
+                    }
+                    if (reSubmissionList[dayIndex] !== undefined) {
+                        reSubmissionList[dayIndex] = reSubmissionList[dayIndex] + 1;
+                        if (firstSubmissionList[dayIndex] + reSubmissionList[dayIndex] > maxSubmissionPerDay) {
+                            //console.log(authorID + "  " + firstSubmissionList[dayIndex] + "  " + reSubmissionList[dayIndex] + "  " + dayIndex);
+                            maxSubmissionPerDay = firstSubmissionList[dayIndex] + reSubmissionList[dayIndex];
+                        }
+                    } else {
+                        reSubmissionList[dayIndex] = 1;
+                    }
+                });
+            });
             // build a submission & reminder severity array
             let srArray = [];
             let subIndex = 0;
@@ -45,9 +92,6 @@ class SubmitReminderTable extends Component {
                 }
             }
 
-            if (details.name === "Orea Crowell" || details.name === "Thatcher Pontius")
-                console.log(srArray);
-
             let sev = 0;
             let rem1Coefficient = 1.0;
             let rem2Coefficient = 2.0;
@@ -65,8 +109,6 @@ class SubmitReminderTable extends Component {
                         j++;
                         let timestampj = Object.keys(srArray[j])[0];
                         sev += currCoefficient * (timestampj - timestamp);
-                        if (details.name === "Orea Crowell" || details.name === "Thatcher Pontius")
-                            console.log(sev + "  " + timestamp + "  " + timestampj);
                         if (srArray[j][timestampj] === "rem1") {
                             lastRemTimestamp = timestampj;
                             currCoefficient = rem1Coefficient;
@@ -108,6 +150,11 @@ class SubmitReminderTable extends Component {
             data.push(tmpObj);
         });
         this.data = data;
+
+        _.forEach(authors, (details, authorID) => {
+            authors[authorID]['maxY'] = maxSubmissionPerDay
+        })
+
 
         // console.log(data);
 
