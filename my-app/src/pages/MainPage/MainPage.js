@@ -28,6 +28,10 @@ const styles = {
     }
 };
 
+const ai = [105, 106, 107, 109, 110, 111, 112, 113, 114, 637, 638, 651, 661,
+    662, 670, 671, 714, 715, 717, 733, 740, 741, 742, 743, 744];
+const challenge = [95, 96, 109, 110, 617, 618, 619, 620, 621, 717];
+
 const numDays = 4;
 // const firstRemDays = 4;
 // const secondRemDays = 7;
@@ -100,7 +104,9 @@ class MainPage extends Component {
             exercises_done: exercises_done,
             exercises_not_done: exercises_not_done,
             subs: submissions.length,
-            exp: 3 * Math.floor( (curr_time - date1) / 604800000)
+            exp: 3 * Math.floor( (curr_time - date1) / 604800000),
+            ai_exercises_attempted: _.filter(exercises, (o => ai.includes(o.exid))).length,
+            challenge_exercises_attempted: _.filter(exercises, (o => challenge.includes(o.exid))).length
         };
     };
 
@@ -450,7 +456,7 @@ class MainPage extends Component {
             });
 
             // for testing
-            this.getEmailVars(fetchedJson, date4);
+            this.getEmailVars(fetchedJson, date12);
 
             // console.log(this.state.weekDict);
         });

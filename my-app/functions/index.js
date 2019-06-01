@@ -13,6 +13,10 @@ const firstRemDays = 4;
 const secondRemDays = 7;
 const thirdRemDays = 10;
 
+const ai = [105, 106, 107, 109, 110, 111, 112, 113, 114, 637, 638, 651, 661,
+    662, 670, 671, 714, 715, 717, 733, 740, 741, 742, 743, 744];
+const challenge = [95, 96, 109, 110, 617, 618, 619, 620, 621, 717];
+
 // for testing
 const date1 = new Date('September 28, 2018 08:00:00').getTime()
 const date2 = new Date('October 5, 2018 08:00:00').getTime()
@@ -26,8 +30,6 @@ const date9 = new Date('November 23, 2018 08:00:00').getTime()
 const date10 = new Date('November 30, 2018 08:00:00').getTime()
 const date11 = new Date('December 7, 2018 08:00:00').getTime()
 const date12 = new Date('December 14, 2018 08:00:00').getTime()
-
-
 
 function isSubmitInSubmitHist(hist, newSubmit) {
     let res = false;
@@ -189,7 +191,9 @@ function getAuthorVars (author, curr_time) {
         exercises_done: exercises_done,
         exercises_not_done: exercises_not_done,
         subs: submissions.length,
-        exp: 3 * Math.floor( (curr_time - date1) / 604800000)
+        exp: 3 * Math.floor( (curr_time - date1) / 604800000),
+        ai_exercises_attempted: _.filter(exercises, (o => ai.includes(o.exid))).length,
+        challenge_exercises_attempted: _.filter(exercises, (o => challenge.includes(o.exid))).length
     };
 };
 
