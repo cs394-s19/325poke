@@ -63,7 +63,35 @@ class SubmitReminderTable extends Component {
                 });
             });
 
-            var sev = this.calculateSeverity(details);
+            // build a reminder & submission array (srArray)
+            let srArray = [];
+            let subIndex = 0;
+            _.forEach(details.reminders, (remType, timestamp) => {
+                for (; subIndex < details.submissions.length; subIndex++) {
+                    if (details.submissions[subIndex].submitted < timestamp) {
+                        let tmp = {};
+                        tmp[details.submissions[subIndex].submitted] = "submission";
+                        srArray.push(tmp);
+                    } else
+                        break;
+                }
+                let tmp = {};
+                if (remType.indexOf("rem1") !== -1)
+                    tmp[timestamp] = "rem1";
+                else if (remType.indexOf("rem2") !== -1)
+                    tmp[timestamp] = "rem2";
+                else if (remType.indexOf("rem3") !== -1)
+                    tmp[timestamp] = "rem3";
+                srArray.push(tmp);
+            });
+            if (subIndex < details.submissions.length) {
+                for (; subIndex < details.submissions.length; subIndex++) {
+                    let tmp = {};
+                    tmp[details.submissions[subIndex].submitted] = "submission";
+                    srArray.push(tmp);
+                }
+            }
+            var sev = this.calculateSeverity(srArray);
 
             let tmpObj = {
                 name: details.name,
@@ -82,38 +110,10 @@ class SubmitReminderTable extends Component {
         })
     }
 
-    // Input: an object (student) with email, exercises, maxY, name, reminders, and submissions
+    // Input: an array of all the submissions and reminders for a student,
+    //        key as the timestamp and value as the reminder bucket or "submission"
     // Output: severity score for the given student
-    calculateSeverity(details) {
-        // build a submission & reminder severity array
-        let srArray = [];
-        let subIndex = 0;
-        _.forEach(details.reminders, (remType, timestamp) => {
-            for (; subIndex < details.submissions.length; subIndex++) {
-                if (details.submissions[subIndex].submitted < timestamp) {
-                    let tmp = {};
-                    tmp[details.submissions[subIndex].submitted] = "submission";
-                    srArray.push(tmp);
-                } else
-                    break;
-            }
-            let tmp = {};
-            if (remType.indexOf("rem1") !== -1)
-                tmp[timestamp] = "rem1";
-            else if (remType.indexOf("rem2") !== -1)
-                tmp[timestamp] = "rem2";
-            else if (remType.indexOf("rem3") !== -1)
-                tmp[timestamp] = "rem3";
-            srArray.push(tmp);
-        });
-        if (subIndex < details.submissions.length) {
-            for (; subIndex < details.submissions.length; subIndex++) {
-                let tmp = {};
-                tmp[details.submissions[subIndex].submitted] = "submission";
-                srArray.push(tmp);
-            }
-        }
-
+    calculateSeverity(srArray) {
         let sev = 0;
         let rem1Coefficient = 1.0;
         let rem2Coefficient = 2.0;
