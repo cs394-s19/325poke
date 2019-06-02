@@ -113,9 +113,9 @@ class MainPage extends Component {
 
 
     getEmailVars = (json, currentTime) => {
-        console.log("email vars");
-        console.log(json.authors);
-        console.log(_.mapValues(json.authors, (o => this.getAuthorVars(o, currentTime))));
+        // console.log("email vars");
+        // console.log(json.authors);
+        // console.log(_.mapValues(json.authors, (o => this.getAuthorVars(o, currentTime))));
     };
 
     // given a base date, returns an array of author ids to which we need to send reminders
@@ -210,10 +210,10 @@ class MainPage extends Component {
         return (
             _.map(reminders, (listofAuthors, bucket) => {
                     return (
-                        <div className="reminderList">
+                        <div className="reminderList" key={bucket}>
                             {_.map(listofAuthors, (authorId, randomKey) => {
                                 return (
-                                    <div className="reminderElement">
+                                    <div className="reminderElement" key={randomKey}>
                                         {this.state.jsonData.authors[authorId].name} ({this.state.jsonData.authors[authorId].email}) &nbsp;
                                         <div className="buttonShowDetails">
                                             <Button id="show" component={Link} to={{
@@ -245,6 +245,7 @@ class MainPage extends Component {
         // console.log("look here: " + Object.keys(weeklyReminders))
         return weeklyReminders
     }
+
     // get daily reminders for histogram
     getDailyReminder = () => {
         const weeklyReminders = this.listWeeklyReminders(1540184400000, 1540789200000)
