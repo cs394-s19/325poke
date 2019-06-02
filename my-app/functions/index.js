@@ -222,29 +222,44 @@ function getEmailsToSend(json, currentTime) {
 
 exports.updateDatabaseAndSendEmail =
     functions.pubsub.schedule('0 20 * * *').timeZone('America/Chicago').onRun((context) => {
-        axios.get('/')
-            .then(function (response) {
-                // query database
-                admin.database().ref('/').once('value').then((snapshot) => {
-                // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
-                let newJson = updateJson(snapshot.val(), fetchJson());
-                // upload the data to database
-                admin.database().ref('/').update(newJson);
-                });
-                console.log(response);
-            })
-            .catch(function (error) {
-                // handle error
-                console.log(error);
-            })
-            .finally(function () {
-                axios.post('/', [])
-                .then(function (response) {
-                    console.log(response);
-                  })
-                  .catch(function (error) {
-                    console.log(error);
-                  });
-            });
-
+        // query database
+        return admin.database().ref('/').once('value').then((snapshot) => {
+            // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
+            let newJson = updateJson(snapshot.val(), fetchJson());
+            // upload the data to database
+            admin.database().ref('/').update(newJson);
+            // send emails as of a certain date
+            const emails = getEmailsToSend(newJson, new Date('October 24, 2018 08:00:00').getTime());
+        });
     });
+
+// TODO: When we start axios, see below
+
+// exports.updateDatabaseAndSendEmail =
+//     functions.pubsub.schedule('0 20 * * *').timeZone('America/Chicago').onRun((context) => {
+//         axios.get('/')
+//             .then(function (response) {
+//                 // query database
+//                 admin.database().ref('/').once('value').then((snapshot) => {
+//                 // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
+//                 let newJson = updateJson(snapshot.val(), fetchJson());
+//                 // upload the data to database
+//                 admin.database().ref('/').update(newJson);
+//                 });
+//                 console.log(response);
+//             })
+//             .catch(function (error) {
+//                 // handle error
+//                 console.log(error);
+//             })
+//             .finally(function () {
+//                 axios.post('/', [])
+//                 .then(function (response) {
+//                     console.log(response);
+//                   })
+//                   .catch(function (error) {
+//                     console.log(error);
+//                   });
+//             });
+//
+//     });
