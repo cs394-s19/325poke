@@ -193,30 +193,31 @@ function getAuthorVars (author, curr_time) {
         exercises_done: exercises_done,
         exercises_not_done: exercises_not_done,
         subs: submissions.length,
-        exp: 3 * Math.floor( (curr_time - date1) / 604800000),
+        exp: 3 * Math.floor((curr_time - date1) / 604800000),
         ai_exercises_attempted: _.filter(exercises, (o => ai.includes(o.exid))).length,
         challenge_exercises_attempted: _.filter(exercises, (o => challenge.includes(o.exid))).length
     };
 };
 
 function getEmailVars (json, currentTime) {
-    return _.mapValues(json.authors, (o => this.getAuthorVars(o, currentTime)));
+    return _.mapValues(json.authors, (o => getAuthorVars(o, currentTime)));
 };
 
-function sendEmails(json, currentTime) {
-    const v = getEmailVars(json, currentTime);
-    const reminderBuckets = json.reminders(currentTime);
-    const sample_text =
-    `Heads up! It's been ${v.sub_last} days since you last submitted anything to the Code Critic${v.ex_last > v.sub_last ? `, and ${v.ex_last} days since you last submitted a new exercise.` : '.'}
+function getEmailsToSend(json, currentTime) {
+    const reminderBuckets = json.reminders[currentTime];
+    const emails = _.pick(getEmailVars(json, currentTime), _.flatten(_.values(reminderBuckets)));
+    return _.mapValues(emails, (v => ({ subject: '325 Poke', text:
+      `Heads up! It's been ${v.sub_last} days since you last submitted anything to the Code Critic${v.ex_last > v.sub_last ? `, and ${v.ex_last} days since you last submitted a new exercise.` : '.'}
 
-    Two to three new exercises a week are expected, plus resubmissions of exercises that needed revision.
+      Two to three new exercises a week are expected, plus resubmissions of exercises that needed revision.
 
-    If you're stuck on something, get help! Email me what you've tried and what happened. Put 325 and the exercise name in the Subject line. Include code and input/output in the email (no attachments).
+      If you're stuck on something, get help! Email me what you've tried and what happened. Put 325 and the exercise name in the Subject line. Include code and input/output in the email (no attachments).
 
-    Your current stats: ${v.exercises_done} exercises done, ${v.exercises_not_done} exercises in progress, ${v.subs} submissions total.
+      Your current stats: ${v.exercises_done} exercises done, ${v.exercises_not_done} exercises in progress, ${v.subs} submissions total.
+      Advanced stats: ${v.ai_exercises_attempted} ai exercises and ${v.challenge_exercises_attempted} challenge exercises attempted.
 
-    ${currentTime > startDate + 3 * 604800000 ? `Expected at this point in the quarter: ${exp} exercises done or almost done.` : ''}`
-    // Post request [authid: {subject, text}]
+      ${currentTime > startDate + 3 * 604800000 ? `Expected at this point in the quarter: ${v.exp} exercises done or almost done.` : ''}`
+    })));
 }
 
 exports.updateDatabaseAndSendEmail =
