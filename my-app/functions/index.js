@@ -204,9 +204,18 @@ function getEmailVars (json, currentTime) {
 };
 
 function sendEmails(json, currentTime) {
-    const emailVars = getEmailVars(json, currentTime);
+    const v = getEmailVars(json, currentTime);
     const reminderBuckets = json.reminders(currentTime);
-    // TODO: use the emailVars with templates to send reminder emails
+    const sample_text =
+    `Heads up! It's been ${v.sub_last} days since you last submitted anything to the Code Critic${v.ex_last > v.sub_last ? `, and ${v.ex_last} days since you last submitted a new exercise.` : '.'}
+
+    Two to three new exercises a week are expected, plus resubmissions of exercises that needed revision.
+
+    If you're stuck on something, get help! Email me what you've tried and what happened. Put 325 and the exercise name in the Subject line. Include code and input/output in the email (no attachments).
+
+    Your current stats: ${v.exercises_done} exercises done, ${v.exercises_not_done} exercises in progress, ${v.subs} submissions total.
+
+    ${currentTime > startDate + 3 * 604800000 ? `Expected at this point in the quarter: ${exp} exercises done or almost done.` : ''}`
     // Post request [authid: {subject, text}]
 }
 
