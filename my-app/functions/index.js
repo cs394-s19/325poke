@@ -6,6 +6,8 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp();
 
+const axios = require('axios');
+
 const startDate = new Date('September 27, 2018 08:00:00').getTime()
 const endDate = new Date('December 14, 2018 08:00:00').getTime()
 const numDays = 4;
@@ -191,21 +193,31 @@ function getAuthorVars (author, curr_time) {
         exercises_done: exercises_done,
         exercises_not_done: exercises_not_done,
         subs: submissions.length,
-        exp: 3 * Math.floor( (curr_time - date1) / 604800000),
+        exp: 3 * Math.floor((curr_time - date1) / 604800000),
         ai_exercises_attempted: _.filter(exercises, (o => ai.includes(o.exid))).length,
         challenge_exercises_attempted: _.filter(exercises, (o => challenge.includes(o.exid))).length
     };
 };
 
 function getEmailVars (json, currentTime) {
-    return _.mapValues(json.authors, (o => this.getAuthorVars(o, currentTime)));
+    return _.mapValues(json.authors, (o => getAuthorVars(o, currentTime)));
 };
 
-function sendEmails(json, currentTime) {
-    const emailVars = getEmailVars(json, currentTime);
-    const reminderBuckets = json.reminders(currentTime);
-    // TODO: use the emailVars with templates to send reminder emails
-    // Post request [authid: {subject, text}]
+function getEmailsToSend(json, currentTime) {
+    const reminderBuckets = json.reminders[currentTime];
+    const emails = _.pick(getEmailVars(json, currentTime), _.flatten(_.values(reminderBuckets)));
+    return _.mapValues(emails, (v => ({ subject: '325 Poke', text:
+      `Heads up! It's been ${v.sub_last} days since you last submitted anything to the Code Critic${v.ex_last > v.sub_last ? `, and ${v.ex_last} days since you last submitted a new exercise.` : '.'}
+
+      Two to three new exercises a week are expected, plus resubmissions of exercises that needed revision.
+
+      If you're stuck on something, get help! Email me what you've tried and what happened. Put 325 and the exercise name in the Subject line. Include code and input/output in the email (no attachments).
+
+      Your current stats: ${v.exercises_done} exercises done, ${v.exercises_not_done} exercises in progress, ${v.subs} submissions total.
+      Advanced stats: ${v.ai_exercises_attempted} ai exercises and ${v.challenge_exercises_attempted} challenge exercises attempted.
+
+      ${currentTime > startDate + 3 * 604800000 ? `Expected at this point in the quarter: ${v.exp} exercises done or almost done.` : ''}`
+    })));
 }
 
 exports.updateDatabaseAndSendEmail =
@@ -217,6 +229,37 @@ exports.updateDatabaseAndSendEmail =
             // upload the data to database
             admin.database().ref('/').update(newJson);
             // send emails as of a certain date
-            sendEmails(newJson, date4);
+            const emails = getEmailsToSend(newJson, new Date('October 24, 2018 08:00:00').getTime());
         });
     });
+
+// TODO: When we start axios, see below
+
+// exports.updateDatabaseAndSendEmail =
+//     functions.pubsub.schedule('0 20 * * *').timeZone('America/Chicago').onRun((context) => {
+//         axios.get('/')
+//             .then(function (response) {
+//                 // query database
+//                 admin.database().ref('/').once('value').then((snapshot) => {
+//                 // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
+//                 let newJson = updateJson(snapshot.val(), fetchJson());
+//                 // upload the data to database
+//                 admin.database().ref('/').update(newJson);
+//                 });
+//                 console.log(response);
+//             })
+//             .catch(function (error) {
+//                 // handle error
+//                 console.log(error);
+//             })
+//             .finally(function () {
+//                 axios.post('/', [])
+//                 .then(function (response) {
+//                     console.log(response);
+//                   })
+//                   .catch(function (error) {
+//                     console.log(error);
+//                   });
+//             });
+//
+//     });
