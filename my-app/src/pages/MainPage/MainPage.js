@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import _ from 'lodash';
-import { AppBar, Button, FormControl, List, MenuItem, Select, Toolbar, Typography, withStyles } from '@material-ui/core';
+import { Button, List, withStyles } from '@material-ui/core';
 import {Link} from 'react-router-dom';
 import './styles.css';
 import database from '../../firebase'
@@ -9,6 +9,7 @@ import Chart from 'react-google-charts';
 import {
   SubmitReminderChart,
   SubmitReminderTable,
+  StyledHeader
 } from '../../components';
 
 // styles
@@ -95,7 +96,7 @@ class MainPage extends Component {
         const subs_rev_chronological = _.reverse(subs_chronological);
         const exercises = _.uniqBy(subs_rev_chronological, ( o => o["exid"]));
 
-        const exercises_done = _.filter(exercises, (o => o.status == "Done")).length;
+        const exercises_done = _.filter(exercises, (o => o.status === "Done")).length;
         const exercises_not_done = exercises.length - exercises_done;
 
         return {
@@ -467,57 +468,14 @@ class MainPage extends Component {
     };
 
     render() {
-        const {classes} = this.props;
         const {currWeek} = this.state;
         return (
             <div className="Main">
-                <AppBar position="static">
-                    <Toolbar>
-                        <Typography variant="h6" >
-                            <span style={{color:"white", fontSize:30}}> 325 Dashboard </span>
-                        </Typography>
-
-                        <span style={{flexGrow:1}}>&nbsp;</span>
-
-                        <span>Week:</span> &nbsp;
-                        <form autoComplete="off">
-                            <FormControl>
-                                <Select
-                                    style={{color: 'white', marginTop: 2}}
-                                    disableUnderline={true}
-                                    value={this.state.currWeek}
-                                    onChange={this.handleWeekChange}
-                                    inputProps={{
-                                        id: 'week-selector',
-                                        classes: {
-                                            icon: classes.arrowColor,
-                                        }
-                                    }}
-                                >
-                                    <MenuItem value={0}>All</MenuItem>
-                                    <MenuItem value={1}>1</MenuItem>
-                                    <MenuItem value={2}>2</MenuItem>
-                                    <MenuItem value={3}>3</MenuItem>
-                                    <MenuItem value={4}>4</MenuItem>
-                                    <MenuItem value={5}>5</MenuItem>
-                                    <MenuItem value={6}>6</MenuItem>
-                                    <MenuItem value={7}>7</MenuItem>
-                                    <MenuItem value={8}>8</MenuItem>
-                                    <MenuItem value={9}>9</MenuItem>
-                                    <MenuItem value={10}>10</MenuItem>
-                                    <MenuItem value={11}>11</MenuItem>
-                                    <MenuItem value={12}>12</MenuItem>
-                                </Select>
-                            </FormControl>
-                        </form>
-                        <Button id="show" component={Link} to={{
-                            pathname: "managepage",
-                            student: this.state.jsonData.authors,
-                        }} label="Manage" variant="contained" color="primary">
-                            Manage
-                        </Button>
-                    </Toolbar>
-                </AppBar>
+                <StyledHeader currWeek={this.state.currWeek} jsonData={this.state.jsonData} handleWeekChange={this.handleWeekChange.bind(this)} />
+                
+                <h1>Student Summaries</h1>
+                {this.state.isLoaded ? <SubmitReminderTable userData={this.state.jsonData["authors"]} /> : null}
+                <br/><br/><br/><br/><br/>
                 <h1>Summary of Reminders Sent by Buckets</h1>
                 <Chart className="Chart"
                        width={'=800px'}
@@ -543,10 +501,7 @@ class MainPage extends Component {
                     {/* commented out because of week index starting at week 0 for the "week all" view for the histogram. causes errors. but we can bring this back if Riesbeck wants */}
                     <div>{(this.state.isLoaded && (this.state.currWeek !==  0  && this.state.currWeek !== 1)) ? this.showDetails(): null}</div>
                 </div>
-
                 <br/><br/><br/><br/><br/>
-                <h1>Student Summaries</h1>
-                {this.state.isLoaded ? <SubmitReminderTable userData={this.state.jsonData["authors"]} /> : null}
             </div>
         );
     }
