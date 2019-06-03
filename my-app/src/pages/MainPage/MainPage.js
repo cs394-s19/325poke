@@ -58,19 +58,41 @@ const dateArray = [startDate, date1, date2, date3, date4, date5, date6, date7, d
 // make list of every friday from date1 to end of quarter
 const times = [date1, date2, date3, date4, date5, date6, date7, date8, date9, date10, date11, date12];
 
-
 class MainPage extends Component {
     // generated week dict using the date array we have
-    generateWeekDict(dateArray) {
+    generateWeekDict(startDate, endDate) {
         let res = {};
+        let dateArray = [];
+        for (let i = startDate; i <= endDate; i = this.getNextDayOfWeek(i, 5)) {
+            dateArray.push(i);
+        }
+        let i = 1;
         for (let i = 1; i < dateArray.length; i++) {
             res[i] = {
                 "startDate": dateArray[i - 1],
                 "endDate": dateArray[i]
             }
         }
+
+        if (dateArray[i] !== endDate) {
+            res[i + 1] = {
+                "startDate": dateArray[i],
+                "endDate": endDate
+            }
+        }
         return res;
     }
+
+    getNextDayOfWeek(date, dayOfWeek) {
+        var resultDate = new Date(date);
+        var tmpDate = new Date(date);
+        console.log(tmpDate.getDate() + (7 + dayOfWeek - tmpDate.getDay()) % 7);
+
+        resultDate.setDate(tmpDate.getDate() + (dayOfWeek - 1 - tmpDate.getDay() + 7) % 7 + 1);
+
+        return resultDate.getTime();
+    }
+
 
     // Get variables needed to send to a given author.
     // Returns object with relevant information.
@@ -410,7 +432,7 @@ class MainPage extends Component {
         this.state = {
             jsonData: {},
             isLoaded: false,
-            weekDict: this.generateWeekDict(dateArray),
+            weekDict: this.generateWeekDict(startDate, endDate),
             currWeek: 0,
             currIndex: 0,
             currBucket: 1,

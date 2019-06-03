@@ -8,7 +8,6 @@ admin.initializeApp();
 
 const startDate = new Date('September 27, 2018 08:00:00').getTime()
 const endDate = new Date('December 14, 2018 08:00:00').getTime()
-const numDays = 4;
 const firstRemDays = 4;
 const secondRemDays = 7;
 const thirdRemDays = 10;
@@ -208,14 +207,15 @@ function sendEmails(json, currentTime) {
     // Post request [authid: {subject, text}]
 }
 
-exports.updateDatabaseAndSendEmail =
-    functions.pubsub.schedule('0 20 * * *').timeZone('America/Chicago').onRun((context) => {
+exports.updateDatabaseAndSendEmailFinal =
+    functions.pubsub.schedule('10 17 * * *').timeZone('America/Chicago').onRun((context) => {
         // query database
         return admin.database().ref('/').once('value').then((snapshot) => {
             // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
             let newJson = updateJson(snapshot.val(), fetchJson());
             // upload the data to database
             admin.database().ref('/').update(newJson);
+            //console.log(newJson);
             // send emails as of a certain date
             sendEmails(newJson, date4);
         });

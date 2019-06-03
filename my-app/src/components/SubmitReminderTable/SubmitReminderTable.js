@@ -155,7 +155,6 @@ class SubmitReminderTable extends Component {
             authors[authorID]['maxY'] = maxSubmissionPerDay
         })
 
-
         // console.log(data);
 
         this.columns = [
@@ -194,7 +193,6 @@ class SubmitReminderTable extends Component {
                     }
                 ]
             }];
-
 
     }
 
@@ -242,8 +240,6 @@ class SubmitReminderTable extends Component {
     }
 
     render() {
-
-
         return (
             <div className="ReminderTable">
                 <br/>
