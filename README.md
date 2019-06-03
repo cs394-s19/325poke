@@ -11,7 +11,7 @@
 2. Go to the function `calculateSeverity()`, which is called for each student in the function `getData()`
 
 ## Files
-
+All the pages are placed in ./my-app/src/pages, while all the smaller components are located in ./my-app/src/components. 
 ### MainPage (./my-app/src/pages/MainPage/MainPage.js)
 - This is the homepage of the application with all the visualizations.
 - Uses SubmitReminderTable component (at ./my-app/src/components/SubmitReminderTable/SubmitReminderTable.js)
