@@ -54,10 +54,10 @@ const date9 = new Date('November 23, 2018 08:00:00').getTime()
 const date10 = new Date('November 30, 2018 08:00:00').getTime()
 const date11 = new Date('December 7, 2018 08:00:00').getTime()
 const date12 = new Date('December 14, 2018 08:00:00').getTime()
+const currEndDate = endDate
 const dateArray = [startDate, date1, date2, date3, date4, date5, date6, date7, date8, date9, date10, date11, date12];
 // make list of every friday from date1 to end of quarter
 const times = [date1, date2, date3, date4, date5, date6, date7, date8, date9, date10, date11, date12];
-
 class MainPage extends Component {
     // generated week dict using the date array we have
     generateWeekDict(startDate, endDate) {
@@ -66,14 +66,15 @@ class MainPage extends Component {
         for (let i = startDate; i <= endDate; i = this.getNextDayOfWeek(i, 5)) {
             dateArray.push(i);
         }
+        //console.log(dateArray);
         let i = 1;
-        for (let i = 1; i < dateArray.length; i++) {
+        for (; i < dateArray.length; i++) {
             res[i] = {
                 "startDate": dateArray[i - 1],
                 "endDate": dateArray[i]
             }
         }
-
+        //console.log(res);
         if (dateArray[i] !== endDate) {
             res[i + 1] = {
                 "startDate": dateArray[i],
@@ -86,7 +87,6 @@ class MainPage extends Component {
     getNextDayOfWeek(date, dayOfWeek) {
         var resultDate = new Date(date);
         var tmpDate = new Date(date);
-        console.log(tmpDate.getDate() + (7 + dayOfWeek - tmpDate.getDay()) % 7);
 
         resultDate.setDate(tmpDate.getDate() + (dayOfWeek - 1 - tmpDate.getDay() + 7) % 7 + 1);
 
@@ -456,6 +456,7 @@ class MainPage extends Component {
             currWeek: 0,
             currIndex: 0,
             currBucket: 1,
+            currEndDate: endDate,
         }
         this.chartEvents = [
             {
@@ -479,7 +480,7 @@ class MainPage extends Component {
             // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
             let fetchedJson = snapshot.val();
 
-            console.log(fetchedJson);
+            //console.log(fetchedJson);
 
             if (fetchedJson.hasOwnProperty("authors")) {
                 let idx = 0
@@ -506,7 +507,18 @@ class MainPage extends Component {
     }
 
     handleWeekChange = event => {
-        this.setState({currWeek: event.target.value});
+        //console.log(this.state.weekDict[event.target.value]);
+        let currEndDate = 0;
+        if (event.target.value === 0) {
+            currEndDate = this.state.weekDict[12]["endDate"];
+        } else {
+            currEndDate = this.state.weekDict[event.target.value]["endDate"];
+        }
+        this.setState({
+            ...this.state,
+            currWeek: event.target.value,
+            currEndDate: currEndDate,
+        });
     };
 
     render() {
@@ -516,7 +528,7 @@ class MainPage extends Component {
                 <StyledHeader currWeek={this.state.currWeek} jsonData={this.state.jsonData} handleWeekChange={this.handleWeekChange.bind(this)} />
 
                 <h1>Student Summaries</h1>
-                {this.state.isLoaded ? <SubmitReminderTable userData={this.state.jsonData["authors"]} /> : null}
+                {this.state.isLoaded ? <SubmitReminderTable endDate={this.state.currEndDate} userData={this.state.jsonData["authors"]} /> : null}
                 <br/><br/><br/><br/><br/>
                 <h1>Summary of Reminders Sent by Buckets</h1>
                 <Chart className="Chart"
@@ -620,4 +632,4 @@ class MainPage extends Component {
 }
 
 export const StyledMainPage = withStyles(styles)(MainPage)
-export {startDate, endDate}
+export {startDate, endDate, currEndDate}

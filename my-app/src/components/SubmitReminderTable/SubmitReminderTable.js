@@ -4,7 +4,7 @@ import ReactTable from 'react-table';
 import 'react-table/react-table.css'
 import * as _ from "lodash";
 import {SubmitReminderChart} from "../SubmitReminderChart";
-import {endDate, startDate} from '../../pages/MainPage/MainPage';
+import {endDate, currEndDate, startDate} from '../../pages/MainPage/MainPage';
 const timeOffset = 8 * 3600 * 1000;
 
 class SubmitReminderTable extends Component {
@@ -25,7 +25,7 @@ class SubmitReminderTable extends Component {
         return -1;
     }
 
-    getData() {
+    getData(endDate) {
         const authors = this.props.userData;
         const data = [];
         let maxSubmissionPerDay = 1;
@@ -39,6 +39,10 @@ class SubmitReminderTable extends Component {
                 _.forEach(detail.submit_hist, (hist, index) => {
                     let tempDate = this.mapTimestampToDate(hist.submitted, dayList);
                     let dayIndex = dayList.indexOf(tempDate);
+                    // submit time is greater than end date
+                    if (dayIndex === -1) {
+                        return;
+                    }
                     if (index === 0) {
                         if (firstSubmissionList[dayIndex] !== undefined) {
                             firstSubmissionList[dayIndex] = firstSubmissionList[dayIndex] + 1;
@@ -106,7 +110,8 @@ class SubmitReminderTable extends Component {
         this.data = data;
 
         _.forEach(authors, (details, authorID) => {
-            authors[authorID]['maxY'] = maxSubmissionPerDay
+            authors[authorID]['maxY'] = maxSubmissionPerDay;
+            authors[authorID]['endDate'] = this.props.endDate;
         })
     }
 
@@ -122,6 +127,8 @@ class SubmitReminderTable extends Component {
         let lastRemTimestamp = 0;
         for (let i = 0; i < srArray.length; i++) {
             let timestamp = Object.keys(srArray[i])[0];
+            if (timestamp > this.props.endDate)
+                break;
             if (srArray[i][timestamp] === "rem1"
                 || srArray[i][timestamp] === "rem2"
                 || srArray[i][timestamp] === "rem3") {
@@ -152,14 +159,19 @@ class SubmitReminderTable extends Component {
             }
         }
         if (currCoefficient !== rem1Coefficient)
-            sev += currCoefficient * (endDate - lastRemTimestamp);
+            sev += currCoefficient * (this.props.endDate - lastRemTimestamp);
 
         sev /= 1000000000;
         return parseFloat(sev.toFixed(3));
     }
 
+    constructor(props) {
+        super(props);
+    }
+
     componentWillMount() {
-        this.getData();
+        // console.log(this.state.endDate)
+        this.getData(this.props.endDate);
         this.columns = [
             {
                 Header: 'Student Info',
@@ -200,6 +212,7 @@ class SubmitReminderTable extends Component {
 
 
     render() {
+        this.getData(this.props.endDate);
         return (
             <div className="ReminderTable">
                 <br/>
