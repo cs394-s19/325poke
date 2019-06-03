@@ -3,7 +3,7 @@ import Chart from 'react-google-charts';
 
 // takes in the week number (from parent) and the data and generates the summary histogram
 function SummaryHistogram({ week, data }) {
-   const [chartEvents, setChartEvents] = useState(
+   const [chartEvents] = useState(
       [
          {
              eventName: 'select',

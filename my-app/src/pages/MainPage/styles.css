@@ -5,6 +5,17 @@
     position: absolute;
     left: 30;
 }
+.reminderList {
+    margin: 0 auto 0 auto;
+    display: inline-block;
+}
+.reminderElement {
+    line-height: 2.5rem;
+    text-align: left;
+}
+.buttonShowDetails {
+    float: right;
+}
 /* .Chart{
     align: center
 } */

@@ -1,22 +1,16 @@
 import React, {Component} from 'react';
 import _ from 'lodash';
-import {Button, List, ListItem, ListItemText, AppBar, Toolbar, Typography, IconButton} from '@material-ui/core';
+import { Button, List, withStyles } from '@material-ui/core';
 import {Link} from 'react-router-dom';
 import './styles.css';
 import database from '../../firebase'
 import Chart from 'react-google-charts';
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
-import withStyles from "@material-ui/core/styles/withStyles";
 
 import {
-  ReminderTable, 
-  SubmitReminderChart, 
+  SubmitReminderChart,
   SubmitReminderTable,
-  SummaryHistogram
+  StyledHeader
 } from '../../components';
-//you should install react-google-charts through command "yarn add react-google-charts" or "npm i react-google-charts"
 
 // styles
 const styles = {
@@ -30,21 +24,19 @@ const styles = {
     arrowColor: {
         fill: 'white'
     },
-    dashboard_title: {
-        color: 'green',
-        fontSize: 50,
-        backgroundColor: 'red',
-        textalign: 'center',
-    },
     week_label: {
         marginRight: 100,
     }
 };
 
+const ai = [105, 106, 107, 109, 110, 111, 112, 113, 114, 637, 638, 651, 661,
+    662, 670, 671, 714, 715, 717, 733, 740, 741, 742, 743, 744];
+const challenge = [95, 96, 109, 110, 617, 618, 619, 620, 621, 717];
+
 const numDays = 4;
-const firstRemDays = 4;
-const secondRemDays = 7;
-const thirdRemDays = 10;
+// const firstRemDays = 4;
+// const secondRemDays = 7;
+// const thirdRemDays = 10;
 
 // class start date = Thursday, September 27th
 const startDate = new Date('September 27, 2018 08:00:00').getTime()
@@ -66,18 +58,105 @@ const dateArray = [startDate, date1, date2, date3, date4, date5, date6, date7, d
 // make list of every friday from date1 to end of quarter
 const times = [date1, date2, date3, date4, date5, date6, date7, date8, date9, date10, date11, date12];
 
-
 class MainPage extends Component {
     // generated week dict using the date array we have
-    generateWeekDict(dateArray) {
+    generateWeekDict(startDate, endDate) {
         let res = {};
+        let dateArray = [];
+        for (let i = startDate; i <= endDate; i = this.getNextDayOfWeek(i, 5)) {
+            dateArray.push(i);
+        }
+        let i = 1;
         for (let i = 1; i < dateArray.length; i++) {
             res[i] = {
                 "startDate": dateArray[i - 1],
                 "endDate": dateArray[i]
             }
         }
+
+        if (dateArray[i] !== endDate) {
+            res[i + 1] = {
+                "startDate": dateArray[i],
+                "endDate": endDate
+            }
+        }
         return res;
+    }
+
+    getNextDayOfWeek(date, dayOfWeek) {
+        var resultDate = new Date(date);
+        var tmpDate = new Date(date);
+        console.log(tmpDate.getDate() + (7 + dayOfWeek - tmpDate.getDay()) % 7);
+
+        resultDate.setDate(tmpDate.getDate() + (dayOfWeek - 1 - tmpDate.getDay() + 7) % 7 + 1);
+
+        return resultDate.getTime();
+    }
+
+
+    // Get variables needed to send to a given author.
+    // Returns object with relevant information.
+    getAuthorVars = (author, curr_time) => {
+        let sub_last = null;
+        let ex_last = null;
+
+        const submissions = _.filter(author["submissions"], (o => o["submitted"] < curr_time));
+        if (submissions.length > 0) {
+          const newest_submission = _.maxBy(submissions, (o => o.submitted));
+          sub_last = Math.floor((curr_time - newest_submission["submitted"]) / 86400000);
+        }
+
+        // only new submissions
+        const subs_chronological = _.sortBy(submissions, (o => o.submitted));
+        const new_submissions = _.uniqBy(subs_chronological, (o => o["exid"]) );
+        if (new_submissions.length > 0) {
+          const newest_new_submission = _.maxBy(new_submissions, (o => o.submitted));
+          ex_last = Math.floor((curr_time - newest_new_submission["submitted"]) / 86400000);
+        }
+
+        // only most recent version of submissions
+        const subs_rev_chronological = _.reverse(subs_chronological);
+        const exercises = _.uniqBy(subs_rev_chronological, ( o => o["exid"]));
+
+        const exercises_done = _.filter(exercises, (o => o.status === "Done")).length;
+        const exercises_not_done = exercises.length - exercises_done;
+
+        return {
+            sub_last: sub_last,
+            ex_last: ex_last,
+            exercises_done: exercises_done,
+            exercises_not_done: exercises_not_done,
+            subs: submissions.length,
+            exp: 3 * Math.floor( (curr_time - date1) / 604800000),
+            ai_exercises_attempted: _.filter(exercises, (o => ai.includes(o.exid))).length,
+            challenge_exercises_attempted: _.filter(exercises, (o => challenge.includes(o.exid))).length
+        };
+    };
+
+
+    getEmailVars = (json, currentTime) => {
+        console.log("email vars");
+        console.log(json.authors);
+        console.log(_.mapValues(json.authors, (o => this.getAuthorVars(o, currentTime))));
+        return _.mapValues(json.authors, (o => this.getAuthorVars(o, currentTime)));
+    };
+
+    getEmailsToSend = (json, currentTime) => {
+        const reminderBuckets = json.reminders[currentTime];
+        const emails = _.pick(this.getEmailVars(json, currentTime), _.flatten(_.values(reminderBuckets)));
+        console.log(currentTime)
+        console.log(_.mapValues(emails, (v => ({ subject: '325 Poke', text:
+          `Heads up! It's been ${v.sub_last} days since you last submitted anything to the Code Critic${v.ex_last > v.sub_last ? `, and ${v.ex_last} days since you last submitted a new exercise.` : '.'}
+
+          Two to three new exercises a week are expected, plus resubmissions of exercises that needed revision.
+
+          If you're stuck on something, get help! Email me what you've tried and what happened. Put 325 and the exercise name in the Subject line. Include code and input/output in the email (no attachments).
+
+          Your current stats: ${v.exercises_done} exercises done, ${v.exercises_not_done} exercises in progress, ${v.subs} submissions total.
+          Advanced stats: ${v.ai_exercises_attempted} ai exercises and ${v.challenge_exercises_attempted} challenge exercises attempted.
+
+          ${currentTime > startDate + 3 * 604800000 ? `Expected at this point in the quarter: ${v.exp} exercises done or almost done.` : ''}`
+        }))));
     }
 
     // given a base date, returns an array of author ids to which we need to send reminders
@@ -149,7 +228,6 @@ class MainPage extends Component {
             }
         })
         // console.log(weeklyReminders)
-        // return weeklyReminders
         return this.displayWeeklyReminders(weeklyReminders)
     }
 
@@ -165,36 +243,35 @@ class MainPage extends Component {
             }
         })
         // console.log([weeklyReminders[index - 1]]);
-        // return weeklyReminders
         return this.displaySpecificReminders([weeklyReminders[index]["rem" + bucket]]);
     }
 
     displaySpecificReminders = (reminders) => {
         // console.log(reminders);
         return (
-            <div>
-                {_.map(reminders, (listofAuthors, bucket) => {
+            _.map(reminders, (listofAuthors, bucket) => {
                     return (
-                        <div>
-                            <p>{_.map(listofAuthors, (authorId, randomKey) => {
+                        <div className="reminderList" key={bucket}>
+                            {_.map(listofAuthors, (authorId, randomKey) => {
                                 return (
-                                    <div>
-                                    <p>reminder sent to {this.state.jsonData.authors[authorId].name} ({this.state.jsonData.authors[authorId].email})</p>
-                                    <Button id="show" component={Link} to={{
-                                        pathname: "details",
-                                        exercises: this.state.jsonData.authors[authorId].exercises,
-                                        student_id: authorId,
-                                        student_name: this.state.jsonData.authors[authorId].name,
-                                    }} label="Show Details" variant="contained" color="primary">
-                                        Show Details
-                                    </Button>
+                                    <div className="reminderElement" key={randomKey}>
+                                        {this.state.jsonData.authors[authorId].name} ({this.state.jsonData.authors[authorId].email}) &nbsp;
+                                        <div className="buttonShowDetails">
+                                            <Button id="show" component={Link} to={{
+                                                pathname: "details",
+                                                exercises: this.state.jsonData.authors[authorId].exercises,
+                                                student_id: authorId,
+                                                student_name: this.state.jsonData.authors[authorId].name,
+                                            }} label="Show Details" variant="contained" color="primary">
+                                                Show Details
+                                            </Button>
+                                        </div>
                                     </div>
                                 )
-                            })}</p>
+                            })}
                         </div>
                     )
-                })}
-            </div>
+                })
         )
     }
 
@@ -209,6 +286,7 @@ class MainPage extends Component {
         // console.log("look here: " + Object.keys(weeklyReminders))
         return weeklyReminders
     }
+
     // get daily reminders for histogram
     getDailyReminder = () => {
         const weeklyReminders = this.listWeeklyReminders(1540184400000, 1540789200000)
@@ -220,11 +298,11 @@ class MainPage extends Component {
             oneDayData[0] = (days[dayIndex])
             _.map(oneDayRem, (authors, bucket) => {
                 // console.log("bucket: " + authors)
-                if (bucket == 'rem1') {
+                if (bucket === 'rem1') {
                     oneDayData[1] = authors.length
-                } else if (bucket == 'rem2') {
+                } else if (bucket === 'rem2') {
                     oneDayData[2] = authors.length
-                } else if (bucket == 'rem3') {
+                } else if (bucket === 'rem3') {
                     oneDayData[3] = authors.length
                 }
             })
@@ -245,11 +323,11 @@ class MainPage extends Component {
             var dayIndex = new Date(Number(timeStamp)).getDay()
             oneDayData[0] = (days[dayIndex])
             _.map(oneDayRem, (authors, bucket) => {
-                if (bucket == 'rem1') {
+                if (bucket === 'rem1') {
                     oneDayData[1] = authors.length
-                } else if (bucket == 'rem2') {
+                } else if (bucket === 'rem2') {
                     oneDayData[2] = authors.length
-                } else if (bucket == 'rem3') {
+                } else if (bucket === 'rem3') {
                     oneDayData[3] = authors.length
                 }
             })
@@ -287,7 +365,7 @@ class MainPage extends Component {
     // gets the data needed to produce a quarter overview of reminders sent with a weekly breakdown
     getHistogramData = (selectedWeek) => {
       // if user selects the "All" view
-      if (selectedWeek == 0) {
+      if (selectedWeek === 0) {
         // console.log("at getWeeklyReminderByQuarter")
         const weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
         // initialize a new data array to update and return
@@ -334,6 +412,8 @@ class MainPage extends Component {
             case 6:
                 dayName = 'Friday';
                 break;
+            default:
+                break;
         }
         return dayName  ;
     }
@@ -351,6 +431,8 @@ class MainPage extends Component {
                 break;
             case 3:
                 remName = '3rd'
+                break;
+            default:
                 break;
         }
         return remName;
@@ -370,7 +452,7 @@ class MainPage extends Component {
         this.state = {
             jsonData: {},
             isLoaded: false,
-            weekDict: this.generateWeekDict(dateArray),
+            weekDict: this.generateWeekDict(startDate, endDate),
             currWeek: 0,
             currIndex: 0,
             currBucket: 1,
@@ -396,6 +478,9 @@ class MainPage extends Component {
         database.ref('/').once('value').then((snapshot) => {
             // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
             let fetchedJson = snapshot.val();
+
+            console.log(fetchedJson);
+
             if (fetchedJson.hasOwnProperty("authors")) {
                 let idx = 0
 
@@ -413,14 +498,10 @@ class MainPage extends Component {
                 isLoaded: true,
             });
 
+            // for testing
+            this.getEmailsToSend(fetchedJson, new Date('October 24, 2018 08:00:00').getTime());
+
             // console.log(this.state.weekDict);
-            //
-            // The code below is now moved to firebase.js(for test) and functions/index.js (real use)
-            //
-            // generate and push reminders
-            // fetchedJson['reminders'] = this.generateRemindersForQuarter(startDate, endDate);
-            // console.log(fetchedJson);
-            // database.ref('/').update(Object.values(fetchedJson));
         });
     }
 
@@ -429,61 +510,15 @@ class MainPage extends Component {
     };
 
     render() {
-        const {classes} = this.props;
-        const {currWeek, weekDict} = this.state;
+        const {currWeek} = this.state;
         return (
             <div className="Main">
-                <AppBar position="static">
-                    <Toolbar>
+                <StyledHeader currWeek={this.state.currWeek} jsonData={this.state.jsonData} handleWeekChange={this.handleWeekChange.bind(this)} />
 
-                        {/*<span style={styles.dashboard_title}>*/}
-                        {/*    325 Stuff*/}
-                        {/*</span>*/}
-
-                        <Typography variant="h6" className={{flexGrow:1}} >
-                            <span style={{color:"white", fontSize:30}}> 325 Dashboard </span>
-                        </Typography>
-
-                        <span style={{flexGrow:1}}></span>
-
-                        <span>Week:</span> &nbsp;
-                        <form autoComplete="off">
-                            <FormControl>
-                                <Select
-                                    style={{color: 'white', marginTop: 2}}
-                                    disableUnderline={true}
-                                    value={this.state.currWeek}
-                                    onChange={this.handleWeekChange}
-                                    inputProps={{
-                                        id: 'week-selector',
-                                        classes: {
-                                            icon: classes.arrowColor,
-                                        }
-                                    }}
-                                >
-                                    <MenuItem value={0}>All</MenuItem>
-                                    <MenuItem value={1}>1</MenuItem>
-                                    <MenuItem value={2}>2</MenuItem>
-                                    <MenuItem value={3}>3</MenuItem>
-                                    <MenuItem value={4}>4</MenuItem>
-                                    <MenuItem value={5}>5</MenuItem>
-                                    <MenuItem value={6}>6</MenuItem>
-                                    <MenuItem value={7}>7</MenuItem>
-                                    <MenuItem value={8}>8</MenuItem>
-                                    <MenuItem value={9}>9</MenuItem>
-                                    <MenuItem value={10}>10</MenuItem>
-                                    <MenuItem value={11}>11</MenuItem>
-                                    <MenuItem value={12}>12</MenuItem>
-                                </Select>
-                            </FormControl>
-                        </form>
-                    </Toolbar>
-                </AppBar>
+                <h1>Student Summaries</h1>
+                {this.state.isLoaded ? <SubmitReminderTable userData={this.state.jsonData["authors"]} /> : null}
+                <br/><br/><br/><br/><br/>
                 <h1>Summary of Reminders Sent by Buckets</h1>
-                {/* <SummaryHistogram 
-                  week={currWeek}
-                  data={this.getHistogramData(currWeek)}
-                /> */}
                 <Chart className="Chart"
                        width={'=800px'}
                        height={'400px'}
@@ -506,26 +541,9 @@ class MainPage extends Component {
 
                 <div className="bucket">
                     {/* commented out because of week index starting at week 0 for the "week all" view for the histogram. causes errors. but we can bring this back if Riesbeck wants */}
-                    <div>{(this.state.isLoaded && (this.state.currWeek !=  0  && this.state.currWeek != 1)) ? this.showDetails(): null}</div>
+                    <div>{(this.state.isLoaded && (this.state.currWeek !==  0  && this.state.currWeek !== 1)) ? this.showDetails(): null}</div>
                 </div>
-
                 <br/><br/><br/><br/><br/>
-                <h1>Student Summaries</h1>
-                {this.state.isLoaded ? <SubmitReminderTable userData={this.state.jsonData["authors"]} /> : null}
-
-                {/* <div className="reminderDetails">
-                    <div className="fourday">
-                        <h1>
-                            The 4-day reminders:
-                        </h1>
-                        {this.state.isLoaded ? this.populateSpecificWeekList(currWeek) : null}
-                    </div>
-                    <div className="twoweek">
-                        <h1>
-                            The 2-week reminders:
-                        </h1>
-                    </div>
-                </div> */}
             </div>
         );
     }
