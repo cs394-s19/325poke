@@ -233,6 +233,8 @@ class MainPage extends Component {
 
     // based on getWeeklyReminders()
     getRemindersByChart(index, bucket) {
+        if (index === -1 && bucket === -1)
+            return;
         const startTime = this.state.weekDict[this.state.currWeek].startDate + 1;
         const endTime = this.state.weekDict[this.state.currWeek].endDate;
         const weeklyReminders = _.filter(this.state.reminders, (timeStamp, index) => { //TODO: rename
@@ -242,8 +244,8 @@ class MainPage extends Component {
                 return false
             }
         })
-        // console.log([weeklyReminders[index - 1]]);
         return this.displaySpecificReminders([weeklyReminders[index]["rem" + bucket]]);
+        // console.log([weeklyReminders[index - 1]]);
     }
 
     displaySpecificReminders = (reminders) => {
@@ -454,8 +456,8 @@ class MainPage extends Component {
             isLoaded: false,
             weekDict: this.generateWeekDict(startDate, endDate),
             currWeek: 0,
-            currIndex: 0,
-            currBucket: 1,
+            currIndex: -1,
+            currBucket: -1,
             currEndDate: endDate,
         }
         this.chartEvents = [
@@ -518,6 +520,8 @@ class MainPage extends Component {
             ...this.state,
             currWeek: event.target.value,
             currEndDate: currEndDate,
+            currIndex: -1,
+            currBucket: -1,
         });
     };
 
