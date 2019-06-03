@@ -138,7 +138,26 @@ class MainPage extends Component {
         console.log("email vars");
         console.log(json.authors);
         console.log(_.mapValues(json.authors, (o => this.getAuthorVars(o, currentTime))));
+        return _.mapValues(json.authors, (o => this.getAuthorVars(o, currentTime)));
     };
+
+    getEmailsToSend = (json, currentTime) => {
+        const reminderBuckets = json.reminders[currentTime];
+        const emails = _.pick(this.getEmailVars(json, currentTime), _.flatten(_.values(reminderBuckets)));
+        console.log(currentTime)
+        console.log(_.mapValues(emails, (v => ({ subject: '325 Poke', text:
+          `Heads up! It's been ${v.sub_last} days since you last submitted anything to the Code Critic${v.ex_last > v.sub_last ? `, and ${v.ex_last} days since you last submitted a new exercise.` : '.'}
+
+          Two to three new exercises a week are expected, plus resubmissions of exercises that needed revision.
+
+          If you're stuck on something, get help! Email me what you've tried and what happened. Put 325 and the exercise name in the Subject line. Include code and input/output in the email (no attachments).
+
+          Your current stats: ${v.exercises_done} exercises done, ${v.exercises_not_done} exercises in progress, ${v.subs} submissions total.
+          Advanced stats: ${v.ai_exercises_attempted} ai exercises and ${v.challenge_exercises_attempted} challenge exercises attempted.
+
+          ${currentTime > startDate + 3 * 604800000 ? `Expected at this point in the quarter: ${v.exp} exercises done or almost done.` : ''}`
+        }))));
+    }
 
     // given a base date, returns an array of author ids to which we need to send reminders
     getAnyReminders = (currentTime) => {
@@ -232,10 +251,10 @@ class MainPage extends Component {
         return (
             _.map(reminders, (listofAuthors, bucket) => {
                     return (
-                        <div className="reminderList">
+                        <div className="reminderList" key={bucket}>
                             {_.map(listofAuthors, (authorId, randomKey) => {
                                 return (
-                                    <div className="reminderElement">
+                                    <div className="reminderElement" key={randomKey}>
                                         {this.state.jsonData.authors[authorId].name} ({this.state.jsonData.authors[authorId].email}) &nbsp;
                                         <div className="buttonShowDetails">
                                             <Button id="show" component={Link} to={{
@@ -267,6 +286,7 @@ class MainPage extends Component {
         // console.log("look here: " + Object.keys(weeklyReminders))
         return weeklyReminders
     }
+
     // get daily reminders for histogram
     getDailyReminder = () => {
         const weeklyReminders = this.listWeeklyReminders(1540184400000, 1540789200000)
@@ -479,7 +499,7 @@ class MainPage extends Component {
             });
 
             // for testing
-            this.getEmailVars(fetchedJson, date12);
+            this.getEmailsToSend(fetchedJson, new Date('October 24, 2018 08:00:00').getTime());
 
             // console.log(this.state.weekDict);
         });
@@ -494,7 +514,7 @@ class MainPage extends Component {
         return (
             <div className="Main">
                 <StyledHeader currWeek={this.state.currWeek} jsonData={this.state.jsonData} handleWeekChange={this.handleWeekChange.bind(this)} />
-                
+
                 <h1>Student Summaries</h1>
                 {this.state.isLoaded ? <SubmitReminderTable userData={this.state.jsonData["authors"]} /> : null}
                 <br/><br/><br/><br/><br/>
