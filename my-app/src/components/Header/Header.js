@@ -24,7 +24,7 @@ class Header extends Component {
     generateMenuItem() {
         const {numOfWeek} = this.props;
         let menuItems = [];
-        for (let i = 0; i < numOfWeek; i++) {
+        for (let i = 0; i <= numOfWeek; i++) {
             menuItems.push(<MenuItem value={i}>{i === 0 ? "All" : i}</MenuItem>);
         }
         return menuItems;

@@ -53,8 +53,8 @@ class MainPage extends Component {
             }
         }
         if (dateArray[i] !== endDate) {
-            res[i + 1] = {
-                "startDate": dateArray[i],
+            res[i] = {
+                "startDate": dateArray[i - 1],
                 "endDate": endDate
             }
         }
@@ -416,6 +416,7 @@ class MainPage extends Component {
                 }
             }
             const weekDict = this.generateWeekDict(startDate, endDate);
+            console.log(weekDict);
 
             let lastWeek = 0;
             let numOfWeek = 0;
