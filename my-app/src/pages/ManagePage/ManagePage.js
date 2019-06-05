@@ -106,30 +106,6 @@ export function ManagePage(props) {
                         onClick={() => updateDate(startDate, endDate)}>
                     Modify
                 </Button>
-                <h1 className='h1'>Manage Email</h1>
-                <br/><br/>
-                <FormControl className='formControl' id="4">
-                    <Select
-                        value={values.emailtype}
-                        onChange={handleChange}
-                        inputProps={{
-                            name: 'emailtype',
-                            id: 'emailtype-simple',
-                        }}
-                    >
-                        <MenuItem value={1}>1st</MenuItem>
-                        <MenuItem value={2}>2ed</MenuItem>
-                        <MenuItem value={3}>3rd</MenuItem>
-                    </Select>
-                    <FormHelperText>Email Type</FormHelperText>
-                </FormControl>
-                <br/><br/>
-                <textarea name="paste" rows="20" cols="80" id='show-text'></textarea>
-                <br/><br/><br/>
-                <Button id="modify"
-                        label="Modify" variant="contained" color="primary">
-                    Modify
-                </Button>
                 {/* component={Link} to="moves" */}
             </div>
 
