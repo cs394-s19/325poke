@@ -32,19 +32,20 @@ const challenge = [95, 96, 109, 110, 617, 618, 619, 620, 621, 717];
 const numDays = 4;
 
 // class start date = Thursday, September 27th
-const startDate = new Date('September 27, 2018 08:00:00').getTime();
-const endDate = new Date('December 14, 2018 08:00:00').getTime();
-const currEndDate = endDate;
+// const startDate = new Date('September 27, 2018 08:00:00').getTime();
+// const endDate = new Date('December 14, 2018 08:00:00').getTime();
+//const currEndDate = endDate;
 // make list of every friday from date1 to end of quarter
 class MainPage extends Component {
     // generated week dict using the date array we have
     generateWeekDict(startDate, endDate) {
+        console.log(startDate);
         let res = {};
         let dateArray = [];
         for (let i = startDate; i <= endDate; i = this.getNextDayOfWeek(i, 5)) {
+            //console.log(i);
             dateArray.push(i);
         }
-        console.log(dateArray);
         let i = 1;
         for (; i < dateArray.length; i++) {
             res[i] = {
@@ -58,7 +59,6 @@ class MainPage extends Component {
                 "endDate": endDate
             }
         }
-        console.log(res);
         return res;
     }
 
@@ -133,7 +133,7 @@ class MainPage extends Component {
           Your current stats: ${v.exercises_done} exercises done, ${v.exercises_not_done} exercises in progress, ${v.subs} submissions total.
           Advanced stats: ${v.ai_exercises_attempted} ai exercises and ${v.challenge_exercises_attempted} challenge exercises attempted.
 
-          ${currentTime > startDate + 3 * 604800000 ? `Expected at this point in the quarter: ${v.exp} exercises done or almost done.` : ''}`
+          ${currentTime > this.state.startDate + 3 * 604800000 ? `Expected at this point in the quarter: ${v.exp} exercises done or almost done.` : ''}`
         }))));
     };
 
@@ -160,7 +160,7 @@ class MainPage extends Component {
     // ensures we ignore the future submissions since we have that data already
     forgetFutureSubmissions = (submissionTime, currentTime) => {
         if (submissionTime > currentTime) {
-            return startDate; // to calculate number of days without work at beginning of quarter
+            return this.state.startDate; // to calculate number of days without work at beginning of quarter
         } else {
             return submissionTime;
         }
@@ -230,7 +230,7 @@ class MainPage extends Component {
         if (week === 0) {
             weeklyReminders = this.listWeeklyReminders(this.state.weekDict[this.state.lastWeek].startDate + 1, this.state.weekDict[this.state.lastWeek].endDate);
         } else {
-            weeklyReminders = this.listWeeklyReminders(this.state.weekDict[this.state.lastWeek].startDate + 1, this.state.weekDict[this.state.lastWeek].endDate);
+            weeklyReminders = this.listWeeklyReminders(this.state.weekDict[week].startDate + 1, this.state.weekDict[week].endDate);
         }
         // console.log("these are the weekly reminders: " + Object.values(weeklyReminders));
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -284,7 +284,9 @@ class MainPage extends Component {
       // if user selects the "All" view
       if (selectedWeek === 0) {
         // console.log("at getWeeklyReminderByQuarter")
-        const weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+        const weeks = [];
+        for (let i = 1; i <= this.state.numOfWeek; i++)
+            weeks.push(i);
         // initialize a new data array to update and return
         var resultData = [['Week', '1st', '2nd', '3rd']];
         // need to call getDailyReminderByWeek with all weeks
@@ -415,11 +417,13 @@ class MainPage extends Component {
                     endDate = new Date(fetchedJson["settings"]["time"]["end"]).getTime();
                 }
             }
+            console.log(startDate);
             const weekDict = this.generateWeekDict(startDate, endDate);
-            console.log(weekDict);
+            //console.log(weekDict);
 
             let lastWeek = 0;
             let numOfWeek = 0;
+            console.log(weekDict)
             _.forEach(weekDict, (content, weekNumStr) => {
                 numOfWeek++;
                 if (parseInt(weekNumStr) > lastWeek) {
@@ -496,4 +500,3 @@ class MainPage extends Component {
 }
 
 export const StyledMainPage = withStyles(styles)(MainPage);
-export {startDate, endDate, currEndDate}
