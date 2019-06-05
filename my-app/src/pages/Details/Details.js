@@ -30,14 +30,14 @@ export class Details extends Component {
           </div>
         )
       }));
-    }
+    };
 
     populateSubHistory = () => {
       return _.map(this.state.exercises, (exercise, index) => {
           if (index === 'ignoreme')
               return;
         //const hist = _.filter(exercise.submit_hist, (entry) => entry.submitted < this.state.currentTime);
-        const hist = exercise.submit_hist
+        const hist = exercise.submit_hist;
         console.log(hist);
         if (_.isEmpty(hist)) {
           // to identify when we have no submissions
@@ -66,7 +66,7 @@ export class Details extends Component {
           </div>
         );
       });
-    }
+    };
 
     render() {
       // to avoid trying to display null

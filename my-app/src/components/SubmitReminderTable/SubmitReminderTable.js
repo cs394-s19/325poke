@@ -65,9 +65,6 @@ class SubmitReminderTable extends Component {
                 });
             });
 
-            //console.log(firstSubmissionList)
-            //console.log(reSubmissionList)
-
             // build a reminder & submission array (srArray)
             let srArray = [];
             let subIndex = 0;
@@ -109,7 +106,7 @@ class SubmitReminderTable extends Component {
         });
 
         this.data = data;
-        console.log(maxSubmissionPerDay);
+        //console.log(maxSubmissionPerDay);
         _.forEach(authors, (details, authorID) => {
             authors[authorID]['maxY'] = maxSubmissionPerDay;
             authors[authorID]['startDate'] = this.props.startDate;
@@ -172,7 +169,7 @@ class SubmitReminderTable extends Component {
     }
 
     componentWillMount() {
-        // console.log(this.state.endDate)
+        //console.log(this.props.endDate)
         this.getData(this.props.startDate, this.props.endDate);
         this.columns = [
             {
@@ -211,7 +208,6 @@ class SubmitReminderTable extends Component {
                 ]
             }];
     }
-
 
     render() {
         this.getData(this.props.startDate, this.props.endDate);

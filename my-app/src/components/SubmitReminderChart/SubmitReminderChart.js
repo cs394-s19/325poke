@@ -32,7 +32,7 @@ export class SubmitReminderChart extends Component {
         //     dayList: dayList
         // });
         // build x axis
-        const xAxisData = []
+        const xAxisData = [];
         for (let i = 0; i < dayList.length; i++) {
             xAxisData.push(new Date(dayList[i]).toDateString());
         }

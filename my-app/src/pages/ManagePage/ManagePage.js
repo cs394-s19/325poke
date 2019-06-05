@@ -17,9 +17,9 @@ import Select from '@material-ui/core/Select';
 import database from '../../firebase'
 
 const updateDate = (newStart, newEnd) => {
-    const newTimes = {"start": newStart, "end": newEnd}
+    const newTimes = {"start": newStart, "end": newEnd};
     database.ref('/settings/time').update(newTimes)
-}
+};
 
 // settings: {
 //   time: {
@@ -36,13 +36,13 @@ export function ManagePage(props) {
     const [values, setValues] = React.useState({
         emailtype: '',
     });
-    const [startDate, setStartDate] = React.useState("2018-09-27")
+    const [startDate, setStartDate] = React.useState("2018-09-27");
 
     function handleStartChange(event) {
         setStartDate(event.target.value)
     }
 
-    const [endDate, setEndDate] = React.useState("2018-12-14")
+    const [endDate, setEndDate] = React.useState("2018-12-14");
 
     function handleEndChange(event) {
         setEndDate(event.target.value)
