@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import './styles.css';
 import 'react-table/react-table.css'
 import ReactEcharts from 'echarts-for-react';
-import {startDate, endDate} from '../../pages/MainPage/MainPage'
 import * as _ from "lodash";
 const timeOffset = 8 * 3600 * 1000;
 
@@ -25,7 +24,7 @@ export class SubmitReminderChart extends Component {
     }
 
     render() {
-        const {reminders, exercises, maxY} = this.props.userData;
+        const {reminders, exercises, maxY, endDate, startDate} = this.props.userData;
         const dayList = this.generateDayList(startDate, endDate);
         // console.log(this.props.userData);
         // this.setState({
@@ -33,7 +32,7 @@ export class SubmitReminderChart extends Component {
         //     dayList: dayList
         // });
         // build x axis
-        const xAxisData = []
+        const xAxisData = [];
         for (let i = 0; i < dayList.length; i++) {
             xAxisData.push(new Date(dayList[i]).toDateString());
         }
