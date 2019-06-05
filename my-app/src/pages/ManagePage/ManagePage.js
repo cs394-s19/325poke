@@ -66,7 +66,7 @@ export function ManagePage(props) {
     return (
         <div class="wrapper">
 
-            <div className='student'>
+            {/* <div className='student'>
                 <h1 className='h1'>Manage Student</h1>
                 <List>
                     {generate(
@@ -87,7 +87,7 @@ export function ManagePage(props) {
                         </ListItem>
                     )}
                 </List>
-            </div>
+            </div> */}
 
             <div></div>
 
