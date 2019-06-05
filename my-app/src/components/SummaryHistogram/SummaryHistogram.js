@@ -8,8 +8,8 @@ function SummaryHistogram({ week, data }) {
          {
              eventName: 'select',
              callback: ({ chartWrapper }) => {
-                 const chart = chartWrapper.getChart()
-                 const selection = chart.getSelection()
+                 const chart = chartWrapper.getChart();
+                 const selection = chart.getSelection();
                  this.setState({
                      ...this.state,
                      currIndex: selection[0].row,
@@ -18,9 +18,9 @@ function SummaryHistogram({ week, data }) {
              }
          },
      ]
-   )
+   );
    
-   console.log("data: " + data)
+   console.log("data: " + data);
    return(
       <Chart className="Chart"
                        width={'=800px'}

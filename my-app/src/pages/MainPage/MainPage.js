@@ -457,6 +457,7 @@ class MainPage extends Component {
         } else {
             currEndDate = this.state.weekDict[event.target.value]["endDate"];
         }
+        // console.log(currEndDate);
         this.setState({
             ...this.state,
             currWeek: event.target.value,

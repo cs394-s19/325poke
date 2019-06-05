@@ -73,4 +73,4 @@ class Header extends Component {
     }
 }
 
-export const StyledHeader = withStyles(styles)(Header)
+export const StyledHeader = withStyles(styles)(Header);
