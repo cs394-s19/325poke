@@ -8,6 +8,8 @@
 
 * Admin dashboard where the instructor can enter the start and end dates of the quarter
 
+![Dashboard Screenshot](my-app/325DashboardScreenshot.png)
+
 ## Platform Compatibility
 1. Node Package Manager (npm)
 2. Tested on Chrome / Safari with Mac OS X
