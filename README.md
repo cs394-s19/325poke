@@ -1,6 +1,6 @@
 # 325poke
 
-325poke is a dashboard that allows the instructor to visualize each student’s progress and thus helps the instructor to identify students who are struggling in the class.
+325poke is a web-based dashboard that allows an instructor to visualize each student’s progress and thus helps the instructor to identify students who are struggling in the class.
 
 * Graphs showing both submissions and reminders over the course of the quarter for each student, sortable by name, severity, and email
 
@@ -8,6 +8,9 @@
 
 * Admin dashboard where the instructor can enter the start and end dates of the quarter
 
+## System Requirements
+1. Node Package Manager (npm)
+2. Tested on Chrome / Safari with Mac OS X
 
 ## To run
 1. Clone the repository
