@@ -23,7 +23,7 @@
 ## To deploy
 1. Make sure to set up a Firebase account and follow the steps here to go public before starting the project: http://www.cs.northwestern.edu/academics/courses/394/learn-react.php#go-public
 2. Navigate to ./my-app/src/firebase.js and input your new Firebase project credentials in the Firebase configurations at the top of the file.
-3. To deploy with sample data from Fall 2018, run updateSubmissionInDatabse(true) in ./my-app/src/firebase.js on L174. To deploy with a clean database for the start of a new quarter, navigate to ./my-app/functions/index.js and implement fetchData() to fetch submission data from server in the format presented within example-submission-data.json (more information in next section).
+3. To deploy with sample data from Fall 2018, run updateSubmissionInDatabase(true) in ./my-app/src/firebase.js on L174. To deploy with a clean database for the start of a new quarter, navigate to ./my-app/functions/index.js and implement fetchData() to fetch submission data from server in the format presented within example-submission-data.json (more information in next section).
 4. Run `npm run build` and then `firebase deploy`
 
 From this point on, you should run `npm run build` and `firebase deploy` after step 4 in the "To Run" section.
