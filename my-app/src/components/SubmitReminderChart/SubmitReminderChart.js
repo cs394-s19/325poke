@@ -26,11 +26,6 @@ export class SubmitReminderChart extends Component {
     render() {
         const {reminders, exercises, maxY, endDate, startDate} = this.props.userData;
         const dayList = this.generateDayList(startDate, endDate);
-        // console.log(this.props.userData);
-        // this.setState({
-        //     ...this.state,
-        //     dayList: dayList
-        // });
         // build x axis
         const xAxisData = [];
         for (let i = 0; i < dayList.length; i++) {
@@ -41,8 +36,6 @@ export class SubmitReminderChart extends Component {
         let reminderTwoSentDate = [];
         let reminderThreeSentDate = [];
         _.forEach(reminders, (remType, timestamp) => {
-            // console.log(remType);
-            // console.log(timestamp);
             if (remType[0] === "rem1")
                 reminderOneSentDate[dayList.indexOf(this.mapTimestampToDate(timestamp, dayList))] = -1;
             else if (remType[0] === "rem2")
@@ -53,7 +46,6 @@ export class SubmitReminderChart extends Component {
 
         let firstSubmissionList = [];
         let reSubmissionList = [];
-        let maxSubmissionNumber = 1;
         // build submission bar
         _.forEach(exercises, (detail, exid) => {
 
@@ -163,11 +155,9 @@ export class SubmitReminderChart extends Component {
             itemStyle: itemStyleResubmission,
             data: reSubmissionList
         };
-        //console.log(jsonObjFirstSubmission);
         this.option["series"].push(jsonObjFirstSubmission);
         this.option["series"].push(jsonObjResubmission);
 
-        //console.log(this.option);
         return (
             <div>
                 <ReactEcharts

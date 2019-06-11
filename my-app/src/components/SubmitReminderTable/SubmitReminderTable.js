@@ -106,7 +106,6 @@ class SubmitReminderTable extends Component {
         });
 
         this.data = data;
-        //console.log(maxSubmissionPerDay);
         _.forEach(authors, (details, authorID) => {
             authors[authorID]['maxY'] = maxSubmissionPerDay;
             authors[authorID]['startDate'] = this.props.startDate;
@@ -164,12 +163,7 @@ class SubmitReminderTable extends Component {
         return parseFloat(sev.toFixed(3));
     }
 
-    constructor(props) {
-        super(props);
-    }
-
     componentWillMount() {
-        //console.log(this.props.endDate)
         this.getData(this.props.startDate, this.props.endDate);
         this.columns = [
             {
@@ -178,18 +172,15 @@ class SubmitReminderTable extends Component {
                     width: Math.round(window.innerWidth * 0.13),
                     Header: 'Name',
                     accessor: 'name',
-                    // Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
                 }, {
                     width: Math.round(window.innerWidth * 0.12),
                     Header: 'Email',
                     accessor: 'email',
-                    // Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
                 },
                     {
                         width: Math.round(window.innerWidth * 0.10),
                         Header: 'Severity',
                         accessor: 'severity',
-                        // Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
                     }]
             }, {
                 Header: 'Submission & Reminder Chart',

@@ -19,7 +19,7 @@ function SummaryHistogram({ week, data }) {
          },
      ]
    );
-   
+
    console.log("data: " + data);
    return(
       <Chart className="Chart"
@@ -29,15 +29,8 @@ function SummaryHistogram({ week, data }) {
                        loader={<div>Loading Chart</div>}
                        data={data}
                        chartEvents={chartEvents}
-                    //    options={{
-                    //        // Material design options
-                    //        chart: {
-                    //            title: 'Number of reminders',
-                    //            subtitle: 'Week ' + currWeek,
-                    //        },
-                    //    }}
                        align="center"
-                    // For tests
+                       // For tests
                        rootProps={{'data-testid': '2'}}
     />
    )

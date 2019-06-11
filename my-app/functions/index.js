@@ -52,7 +52,6 @@ function fetchJson() {
 }
 
 function forgetFutureSubmissions(submissionTime, currentTime) {
-    // console.log(submissionTime);
     if (submissionTime > currentTime) {
         return startDate; // to calculate number of days without work at beginning of quarter
     } else {
@@ -205,6 +204,7 @@ function getEmailVars (json, currentTime) {
 function getEmailsToSend(json, currentTime) {
     const reminderBuckets = json.reminders[currentTime];
     const emails = _.pick(getEmailVars(json, currentTime), _.flatten(_.values(reminderBuckets)));
+    // one basic email template implemented, change this text as needed for more options
     return _.mapValues(emails, (v => ({ subject: '325 Poke', text:
       `Heads up! It's been ${v.sub_last} days since you last submitted anything to the Code Critic${v.ex_last > v.sub_last ? `, and ${v.ex_last} days since you last submitted a new exercise.` : '.'}
 
@@ -227,13 +227,12 @@ exports.updateDatabaseAndSendEmailFinal =
             let newJson = updateJson(snapshot.val(), fetchJson());
             // upload the data to database
             admin.database().ref('/').update(newJson);
-            //console.log(newJson);
             // send emails as of a certain date
             const emails = getEmailsToSend(newJson, new Date('October 24, 2018 08:00:00').getTime());
         });
     });
 
-// TODO: When we start axios, see below
+// BELOW IS AN EXAMPLE FOR CONNECTING TO A SERVER USING AXIOS
 
 // exports.updateDatabaseAndSendEmail =
 //     functions.pubsub.schedule('0 20 * * *').timeZone('America/Chicago').onRun((context) => {

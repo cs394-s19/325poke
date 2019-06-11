@@ -31,19 +31,13 @@ const challenge = [95, 96, 109, 110, 617, 618, 619, 620, 621, 717];
 
 const numDays = 4;
 
-// class start date = Thursday, September 27th
-// const startDate = new Date('September 27, 2018 08:00:00').getTime();
-// const endDate = new Date('December 14, 2018 08:00:00').getTime();
-//const currEndDate = endDate;
 // make list of every friday from date1 to end of quarter
 class MainPage extends Component {
     // generated week dict using the date array we have
     generateWeekDict(startDate, endDate) {
-        console.log(startDate);
         let res = {};
         let dateArray = [];
         for (let i = startDate; i <= endDate; i = this.getNextDayOfWeek(i, 5)) {
-            //console.log(i);
             dateArray.push(i);
         }
         let i = 1;
@@ -113,16 +107,13 @@ class MainPage extends Component {
 
 
     getEmailVars = (json, currentTime) => {
-        console.log("email vars");
-        console.log(json.authors);
-        console.log(_.mapValues(json.authors, (o => this.getAuthorVars(o, currentTime))));
         return _.mapValues(json.authors, (o => this.getAuthorVars(o, currentTime)));
     };
 
     getEmailsToSend = (json, currentTime) => {
         const reminderBuckets = json.reminders[currentTime];
         const emails = _.pick(this.getEmailVars(json, currentTime), _.flatten(_.values(reminderBuckets)));
-        console.log(currentTime);
+        console.log("Reminders email json for: " + currentTime + " (date in ms)");
         console.log(_.mapValues(emails, (v => ({ subject: '325 Poke', text:
           `Heads up! It's been ${v.sub_last} days since you last submitted anything to the Code Critic${v.ex_last > v.sub_last ? `, and ${v.ex_last} days since you last submitted a new exercise.` : '.'}
 
@@ -179,11 +170,9 @@ class MainPage extends Component {
             return index >= startTime && index <= endTime;
         });
         return this.displaySpecificReminders([weeklyReminders[index]["rem" + bucket]]);
-        // console.log([weeklyReminders[index - 1]]);
     }
 
     displaySpecificReminders = (reminders) => {
-        // console.log(reminders);
         return (
             _.map(reminders, (listofAuthors, bucket) => {
                     return (
@@ -220,19 +209,11 @@ class MainPage extends Component {
     // for histogram
     getDailyReminderByWeek = (week) => {
         let weeklyReminders = {};
-        // let lastWeek = 0;
-        // _.forEach(this.state.weekDict, (content, weekNumStr) => {
-        //     if (parseInt(weekNumStr) > lastWeek) {
-        //         lastWeek = parseInt(weekNumStr);
-        //     }
-        // });
-        // "All"
         if (week === 0) {
             weeklyReminders = this.listWeeklyReminders(this.state.weekDict[this.state.lastWeek].startDate + 1, this.state.weekDict[this.state.lastWeek].endDate);
         } else {
             weeklyReminders = this.listWeeklyReminders(this.state.weekDict[week].startDate + 1, this.state.weekDict[week].endDate);
         }
-        // console.log("these are the weekly reminders: " + Object.values(weeklyReminders));
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         var resultData = [['Day', '1st', '2nd', '3rd']];
         _.map(weeklyReminders, (oneDayRem, timeStamp) => {
@@ -250,7 +231,6 @@ class MainPage extends Component {
             });
             resultData.push(oneDayData)
         });
-        // console.log("result data: " + resultData)
         return resultData
     };
 
@@ -283,7 +263,6 @@ class MainPage extends Component {
     getHistogramData = (selectedWeek) => {
       // if user selects the "All" view
       if (selectedWeek === 0) {
-        // console.log("at getWeeklyReminderByQuarter")
         const weeks = [];
         for (let i = 1; i <= this.state.numOfWeek; i++)
             weeks.push(i);
@@ -293,10 +272,8 @@ class MainPage extends Component {
         _.map(weeks, (currWeek) => {
           const dailyBreakdown = this.getDailyReminderByWeek(currWeek);
           const oneWeekArray = this.sumDailyToWeek(dailyBreakdown, currWeek);
-        //   console.log("oneWeekArray: " + oneWeekArray)
-          resultData.push(oneWeekArray) //TODO: make sure this maintains the right structure
+          resultData.push(oneWeekArray)
         });
-        // console.log("HERE: " + resultData)
         return resultData
       }
       // otherwise, show the daily breakdown for a given week
@@ -305,7 +282,7 @@ class MainPage extends Component {
       }
     };
 
-    //given the index, get the name of day
+    // given the index, get the name of day
     getDay = (dayIndex) =>{
         var dayName = '';
         switch(dayIndex)
@@ -337,7 +314,7 @@ class MainPage extends Component {
         return dayName  ;
     };
 
-    //given the index, get the name of day
+    // given the index, get the name of day
     getRemName = (currBucket) =>{
         var remName = '';
         switch(currBucket)
@@ -417,13 +394,10 @@ class MainPage extends Component {
                     endDate = new Date(fetchedJson["settings"]["time"]["end"]).getTime();
                 }
             }
-            console.log(startDate);
             const weekDict = this.generateWeekDict(startDate, endDate);
-            //console.log(weekDict);
 
             let lastWeek = 0;
             let numOfWeek = 0;
-            console.log(weekDict)
             _.forEach(weekDict, (content, weekNumStr) => {
                 numOfWeek++;
                 if (parseInt(weekNumStr) > lastWeek) {
@@ -450,14 +424,12 @@ class MainPage extends Component {
     }
 
     handleWeekChange = event => {
-        //console.log(this.state.weekDict[event.target.value]);
         let currEndDate = 0;
         if (event.target.value === 0) {
             currEndDate = this.state.endDate;
         } else {
             currEndDate = this.state.weekDict[event.target.value]["endDate"];
         }
-        // console.log(currEndDate);
         this.setState({
             ...this.state,
             currWeek: event.target.value,
@@ -490,7 +462,6 @@ class MainPage extends Component {
 
 
                 <div className="bucket">
-                    {/* commented out because of week index starting at week 0 for the "week all" view for the histogram. causes errors. but we can bring this back if Riesbeck wants */}
                     <div>{(this.state.isLoaded && (this.state.currWeek !==  0  && this.state.currWeek !== 1)) ? this.showDetails(): null}</div>
                 </div>
                 <br/><br/><br/><br/><br/>

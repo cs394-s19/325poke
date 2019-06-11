@@ -7,10 +7,9 @@ export class Details extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            exercises: this.props.location.exercises, 
+            exercises: this.props.location.exercises,
             student_id: this.props.location.student_id,
             student_name: this.props.location.student_name,
-            //currentTime: this.props.location.currentTime,
         };
     };
 
@@ -36,7 +35,6 @@ export class Details extends Component {
       return _.map(this.state.exercises, (exercise, index) => {
           if (index === 'ignoreme')
               return;
-        //const hist = _.filter(exercise.submit_hist, (entry) => entry.submitted < this.state.currentTime);
         const hist = exercise.submit_hist;
         console.log(hist);
         if (_.isEmpty(hist)) {
@@ -46,9 +44,6 @@ export class Details extends Component {
         return (
           <div className="details" key={index}>
             <h1>Exercise {index}</h1> 
-            {/* Status: <b>{exercise.status}</b> Last Submitted Time: <b>{this.toTime(exercise.submitted)}</b>
-            <br/>
-            <br/> */}
             <div className="table">
               <table className="details">
                 <tbody>

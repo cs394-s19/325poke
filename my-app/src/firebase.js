@@ -29,15 +29,17 @@ function fetchJson() {
 }
 
 // fetch json and use it to update the database
-function updateSubmissionInDatabase() {
-    // query database
-    database.ref('/').once('value').then((snapshot) => {
-        // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
-        let newJson = updateJson(snapshot.val(), fetchJson());
-        console.log(newJson);
-        // upload the data to database
-        database.ref('/').update(newJson);
-    });
+function updateSubmissionInDatabase(execute) {
+    if (execute) {
+      // query database
+      database.ref('/').once('value').then((snapshot) => {
+          // when query finished, call updatejson() to compare and "merge" the current data in database with new json data
+          let newJson = updateJson(snapshot.val(), fetchJson());
+          console.log(newJson);
+          // upload the data to database
+          database.ref('/').update(newJson);
+      });
+    }
 }
 
 function isSubmitInSubmitHist(hist, newSubmit) {
@@ -168,7 +170,8 @@ function updateJson(originjson, json) {
     return formattedJson;
 }
 
-// updateSubmissionInDatabase();
+//change this value to true when testing
+updateSubmissionInDatabase(false);
 export default database;
 
 //database.ref('/').update(newJson);
