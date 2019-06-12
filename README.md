@@ -13,7 +13,7 @@
 ## Team Members:
 
 - Keren Park [@parkhk10](https://github.com/parkhk10) 
-- Yul Hee Kim [yulheekim](https://github.com/yulheekim)
+- Yul Hee Kim [@yulheekim](https://github.com/yulheekim)
 - Xin Tong [@XinTongBUPT](https://github.com/XinTongBUPT)
 - Jayden Soni [@jaydenrsoni](https://github.com/jaydenrsoni)
 - Will Klundgren [@willklundgren](https://github.com/willklundgren)
