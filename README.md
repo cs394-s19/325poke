@@ -10,6 +10,15 @@
 
 ![Dashboard Screenshot](my-app/325DashboardScreenshot.png)
 
+## Team Members:
+
+- Keren Park [@parkhk10](https://github.com/parkhk10) 
+- Yul Hee Kim [yulheekim](https://github.com/yulheekim)
+- Xin Tong [@XinTongBUPT](https://github.com/XinTongBUPT)
+- Jayden Soni [@jaydenrsoni](https://github.com/jaydenrsoni)
+- Will Klundgren [@willklundgren](https://github.com/willklundgren)
+- Charles Dai [@RabbitQAQ](https://github.com/RabbitQAQ)
+
 ## Platform Compatibility
 1. Node Package Manager (npm)
 2. Tested on Chrome / Safari with Mac OS X
